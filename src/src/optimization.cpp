@@ -1,0 +1,440 @@
+#include "optimization.hpp"
+#include "nlopt/nlopt.h"
+#include "random.hpp"
+
+namespace anyprog {
+
+double optimization::eps = 1e-5;
+
+double optimization::instance_fun(unsigned n, const double* x, double* grad, void* my_func_data)
+{
+    real_block ret(n, 1);
+    for (size_t i = 0; i < n; ++i) {
+        ret(i, 0) = x[i];
+    }
+    optimization::help_t* help = (optimization::help_t*)(my_func_data);
+    if (*help->filter) {
+        (*help->filter)(ret);
+    }
+    return (*help->fun)(ret);
+}
+
+double optimization::instance_eq_fun(unsigned n, const double* x, double* grad, void* my_func_data)
+{
+    real_block ret(n, 1);
+    for (size_t i = 0; i < n; ++i) {
+        ret(i, 0) = x[i];
+    }
+    optimization::help_t* help = (optimization::help_t*)(my_func_data);
+    if (*help->filter) {
+        (*help->filter)(ret);
+    }
+    return (*help->fun)(ret);
+}
+
+double optimization::instance_ineq_fun(unsigned n, const double* x, double* grad, void* my_func_data)
+{
+    real_block ret(n, 1);
+    for (size_t i = 0; i < n; ++i) {
+        ret(i, 0) = x[i];
+    }
+    optimization::help_t* help = (optimization::help_t*)(my_func_data);
+    if (*help->filter) {
+        (*help->filter)(ret);
+    }
+    return (*help->fun)(ret);
+}
+
+optimization::optimization(const funcation_t& fun, const real_block& p)
+    : solver(optimization::solver_t::NLOPT)
+    , fval(0)
+    , point(p)
+    , cb(fun)
+    , filter_cb()
+    , eq_fun()
+    , ineq_fun()
+    , range()
+    , history()
+{
+}
+
+optimization::optimization(const funcation_t& fun, const real_block& p, const std::vector<optimization::range_t>& range)
+    : solver(optimization::solver_t::NLOPT)
+    , fval(0)
+    , point(p)
+    , cb(fun)
+    , filter_cb()
+    , eq_fun()
+    , ineq_fun()
+    , range(range)
+    , history()
+{
+}
+
+optimization::optimization(const funcation_t& fun, const std::vector<optimization::range_t>& range)
+    : solver(optimization::solver_t::NLOPT)
+    , fval(0)
+    , point(range.size(), 1)
+    , cb(fun)
+    , filter_cb()
+    , eq_fun()
+    , ineq_fun()
+    , range(range)
+    , history()
+{
+    random rng(0, 1);
+    for (size_t i = 0; i < this->point.rows(); ++i) {
+        this->point(i, 0) = this->range[i].first + (this->range[i].second - this->range[i].first) * rng.generate();
+    }
+} 
+
+optimization::optimization(const real_block& v, const real_block& p)
+    : solver(optimization::solver_t::NLOPT)
+    , fval(0)
+    , point(p)
+    , cb()
+    , filter_cb()
+    , eq_fun()
+    , ineq_fun()
+    , range()
+    , history()
+{
+    this->cb = [&](const real_block& x) {
+        size_t m = x.rows();
+        double sum = 0.0;
+        for (size_t i = 0; i < m; ++i) {
+            sum += v(i,0) * x(i,0);
+        }
+        return sum;
+    };
+}
+optimization::optimization(const real_block& v, const std::vector<range_t>& range)
+    : solver(optimization::solver_t::NLOPT)
+    , fval(0)
+    , point(range.size(), 1)
+    , cb()
+    , filter_cb()
+    , eq_fun()
+    , ineq_fun()
+    , range(range)
+    , history()
+{
+    this->cb = [&](const real_block& x) {
+        size_t m = x.rows();
+        double sum = 0.0;
+        for (size_t i = 0; i < m; ++i) {
+            sum += v(i,0) * x(i,0);
+        }
+        return sum;
+    };
+    random rng(0, 1);
+    for (size_t i = 0; i < this->point.rows(); ++i) {
+        this->point(i, 0)= this->range[i].first + (this->range[i].second - this->range[i].first) * rng.generate();
+    }
+}
+optimization::optimization(const real_block& v, const real_block& p, const std::vector<range_t>& range)
+    : solver(optimization::solver_t::NLOPT)
+    , fval(0)
+    , point(p)
+    , cb()
+    , filter_cb()
+    , eq_fun()
+    , ineq_fun()
+    , range(range)
+    , history()
+{
+    this->cb = [&](const real_block& x) {
+        size_t m = x.rows();
+        double sum = 0.0;
+        for (size_t i = 0; i < m; ++i) {
+            sum += x(i,0) * v(i,0);
+        }
+        return sum;
+    };
+}
+
+optimization& optimization::set_equation_condition(const std::vector<equation_condition_funcation_t>& eq_cond)
+{
+    this->eq_fun = eq_cond;
+    return *this;
+}
+optimization& optimization::set_inequation_condition(const std::vector<inequation_condition_funcation_t>& ineq_cond)
+{
+    this->ineq_fun = ineq_cond;
+    return *this;
+}
+
+optimization& optimization::set_equation_condition(const real_block& A, const real_block& b)
+{
+    size_t m = A.rows();
+    for (size_t i = 0; i < m; ++i) {
+        this->eq_fun.emplace_back([&, i](const real_block& x) {
+            double v = 0;
+            size_t n = x.rows();
+            for (size_t j = 0; j < n; ++j) {
+                v += A(i, j) * x(j,0);
+            }
+            return v - b(i,0);
+        });
+    }
+    return *this;
+}
+optimization& optimization::set_inequation_condition(const real_block& A, const real_block& b)
+{
+    size_t m = A.rows();
+    for (size_t i = 0; i < m; ++i) {
+        this->ineq_fun.emplace_back([&, i](const real_block& x) {
+            double v = 0;
+            size_t n = x.rows();
+            for (size_t j = 0; j < n; ++j) {
+                v += A(i, j) * x(j,0);
+            }
+            return v - b(i,0);
+        });
+    }
+    return *this;
+}
+
+optimization& optimization::set_solver(optimization::solver_t s)
+{
+    this->solver = s;
+    return *this;
+}
+
+double optimization::obj(const real_block& ret) const
+{
+    return this->cb(ret);
+}
+bool optimization::check(const real_block& p, double eps) const
+{
+    bool eq_check = true, ineq_check = true;
+    size_t m = this->eq_fun.size();
+    for (size_t i = 0; eq_check && i < m; ++i) {
+        eq_check = eq_check && fabs(this->eq_fun[i](p)) <= eps;
+    }
+    if (eq_check) {
+        double v = 0;
+        m = this->ineq_fun.size();
+        for (size_t i = 0; ineq_check && i < m; ++i) {
+            v = this->ineq_fun[i](p);
+            if (v > 0) {
+                ineq_check = ineq_check && v <= eps;
+            }
+        }
+    } else {
+        return eq_check;
+    }
+    return eq_check && ineq_check;
+}
+
+optimization& optimization::set_filter_function(const optimization::filter_funcation_t& cb)
+{
+    this->filter_cb = cb;
+    return *this;
+}
+const real_block& optimization::search(size_t max_random_iter, size_t max_not_changed, double s, optimization::method m, double eps, size_t max_iter)
+{
+    if (!this->range.empty()) {
+        size_t dim = this->range.size();
+        double obj_value, global_obj_value;
+        if (this->filter_cb) {
+            this->filter_cb(this->point);
+        }
+        obj_value = this->cb(this->point);
+        global_obj_value = obj_value;
+        real_block global_point = this->point;
+        size_t not_changed = 0, global_max_random_iter = 0;
+        std::vector<std::shared_ptr<random>> rng;
+        random rg(0 - eps, fabs(s) + eps);
+        for (size_t i = 0; i < dim; ++i) {
+            rng.emplace_back(std::make_shared<random>(this->range[i].first - eps, this->range[i].second + eps));
+        }
+    loop:
+        for (size_t i = 0; i < max_random_iter; ++i) {
+            for (size_t j = 0; j < dim; ++j) {
+                this->point(j, 0)= rng[j]->generate();
+            }
+            this->point = this->solve(m, eps, max_iter);
+            obj_value = this->fval;
+            bool gcheck = this->check(global_point, eps), lcheck = this->check(this->point, eps);
+            bool case1 = !gcheck && lcheck, case2 = lcheck && (global_obj_value - obj_value) >= eps;
+            if (case1 || case2) {
+                global_point = this->point;
+                global_obj_value = obj_value;
+                not_changed = 0;
+                this->history.push_back({ global_obj_value, global_point });
+            } else if (++not_changed > max_not_changed) {
+                not_changed = 0;
+                break;
+            }
+        }
+
+        rng.clear();
+        not_changed = 0;
+        this->point = global_point;
+        for (size_t i = 0; i < dim; ++i) {
+            range_t& p = this->range[i];
+            double c = p.second - p.first;
+            if (c >= eps) {
+                double best = this->point(i, 0);
+                if (best > c / 2.0) {
+                    p.first += (best - p.first) * rg.generate();
+                } else {
+                    p.second -= (p.second - best) * rg.generate();
+                }
+            } else {
+                ++not_changed;
+            }
+            rng.emplace_back(std::make_shared<random>(p.first - eps, p.second + eps));
+        }
+        if ((not_changed < dim - 1) && ++global_max_random_iter <= max_not_changed) {
+            not_changed = 0;
+            goto loop;
+        }
+        return this->point;
+    }
+    return this->solve(m, eps, max_iter);
+}
+
+const real_block& optimization::nlopt_solve(optimization::method m, double eps, size_t max_iter)
+{
+    size_t dim = this->point.rows();
+    nlopt_algorithm method;
+    switch (m) {
+    case optimization::method::LN_COBYLA:
+        method = NLOPT_LN_COBYLA;
+        break;
+    case optimization::method::LN_NEWUOA:
+        method = NLOPT_LN_NEWUOA;
+        break;
+    case optimization::method::LN_NEWUOA_BOUND:
+        method = NLOPT_LN_NEWUOA_BOUND;
+        break;
+    case optimization::method::LN_NELDERMEAD:
+        method = NLOPT_LN_NELDERMEAD;
+        break;
+    case optimization::method::LN_SBPLX:
+        method = NLOPT_LN_SBPLX;
+        break;
+    case optimization::method::LN_AUGLAG:
+        method = NLOPT_LN_AUGLAG;
+        break;
+    case optimization::method::LN_AUGLAG_EQ:
+        method = NLOPT_LN_AUGLAG_EQ;
+        break;
+    case optimization::method::LN_BOBYQA:
+        method = NLOPT_LN_BOBYQA;
+        break;
+    case optimization::method::LN_PRAXIS:
+        method = NLOPT_LN_PRAXIS;
+        break;
+    default:
+        method = NLOPT_LN_COBYLA;
+        break;
+    }
+    nlopt_opt opt_loc = nlopt_create(method, dim);
+    nlopt_opt opt = nlopt_create(NLOPT_LN_COBYLA, dim);
+    nlopt_set_local_optimizer(opt, opt_loc);
+    help_t obj;
+    obj.filter = &this->filter_cb;
+    obj.fun = &this->cb;
+    nlopt_set_min_objective(opt, optimization::instance_fun, &obj);
+    nlopt_set_xtol_rel(opt, eps);
+    nlopt_set_ftol_abs(opt, eps);
+    nlopt_set_force_stop(opt, eps);
+    nlopt_set_maxeval(opt, max_iter);
+    double lb[dim], ub[dim];
+    if (!this->range.empty()) {
+        for (size_t i = 0; i < dim; ++i) {
+            range_t& cur_range = this->range[i];
+            lb[i] = cur_range.first;
+            ub[i] = cur_range.second;
+        }
+        nlopt_set_lower_bounds(opt, lb);
+        nlopt_set_upper_bounds(opt, ub);
+    }
+
+    std::vector<help_t> eq_help, ineq_help;
+    for (size_t i = 0; i < this->eq_fun.size(); ++i) {
+        help_t h;
+        h.filter = &this->filter_cb;
+        h.fun = &this->eq_fun[i];
+        eq_help.emplace_back(h);
+    }
+    for (size_t i = 0; i < eq_help.size(); ++i) {
+        nlopt_add_equality_constraint(opt, instance_eq_fun, &eq_help[i], eps);
+    }
+
+    for (size_t i = 0; i < this->ineq_fun.size(); ++i) {
+        help_t h;
+        h.filter = &this->filter_cb;
+        h.fun = &this->ineq_fun[i];
+        ineq_help.emplace_back(h);
+    }
+    for (size_t i = 0; i < ineq_help.size(); ++i) {
+        nlopt_add_inequality_constraint(opt, instance_ineq_fun, &ineq_help[i], eps);
+    }
+
+    double ret[dim];
+    for (size_t i = 0; i < dim; ++i) {
+        ret[i] = this->point(i,0);
+    }
+
+    if (nlopt_optimize(opt, ret, &this->fval) >= 0) {
+        for (size_t i = 0; i < dim; ++i) {
+            this->point(i, 0)= ret[i];
+        }
+    }
+    if (this->filter_cb) {
+        this->filter_cb(this->point);
+    }
+    nlopt_destroy(opt);
+    nlopt_destroy(opt_loc);
+    return this->point;
+}
+
+const real_block& optimization::solve(optimization::method m, double eps, size_t max_iter)
+{
+    if (this->solver == optimization::solver_t::NLOPT) {
+        return this->nlopt_solve(m, eps, max_iter);
+    }
+    return this->nlopt_solve(m, eps, max_iter);
+}
+
+const optimization::history_t& optimization::get_history() const
+{
+    return this->history;
+}
+
+optimization& optimization::set_enable_integer_filter()
+{
+    this->filter_cb = [&](real_block& x) {
+        size_t m = x.rows();
+        for (size_t i = 0; i < m; ++i) {
+            x(i, 0)= round(x(i, 0));
+        }
+    };
+    return *this;
+}
+optimization& optimization::set_enable_binary_filter()
+{
+    if (this->range.empty()) {
+        for (size_t i = 0; i < this->point.rows(); ++i) {
+            this->range.push_back({ 0, 1 });
+        }
+    } else {
+        for (auto& i : this->range) {
+            i.first = 0;
+            i.second = 1;
+        }
+    }
+
+    this->filter_cb = [&](real_block& x) {
+        size_t m = x.rows();
+        for (size_t i = 0; i < m; ++i) {
+            x(i, 0)=round(x(i, 0));
+        }
+    };
+    return *this;
+}
+}

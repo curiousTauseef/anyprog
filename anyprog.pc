@@ -1,0 +1,12 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib
+
+Name: gslpp
+Description: A C++ wrapper and extened for the GNU Scientific Library (GSL) 
+Version: 0.8.8
+URL: https://github.com/webcpp/gslpp
+Requires:
+Libs: -L${libdir} -lanyprog -lm
+Cflags: -I${includedir}
