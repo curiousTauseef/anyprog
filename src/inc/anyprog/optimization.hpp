@@ -1,12 +1,11 @@
 #ifndef ANYPROG_OPTIMIZATION
 #define ANYPROG_OPTIMIZATION
 
-
+#include "block.hpp"
 #include <functional>
 #include <memory>
 #include <utility>
 #include <vector>
-#include "block.hpp"
 
 namespace anyprog {
 class optimization {
@@ -26,7 +25,24 @@ public:
         LN_AUGLAG,
         LN_AUGLAG_EQ,
         LN_BOBYQA,
-        LN_PRAXIS
+        LN_PRAXIS,
+        GN_DIRECT,
+        GN_DIRECT_L,
+        GN_DIRECT_L_RAND,
+        GN_DIRECT_NOSCAL,
+        GN_DIRECT_L_NOSCAL,
+        GN_DIRECT_L_RAND_NOSCAL,
+        GN_ORIG_DIRECT,
+        GN_ORIG_DIRECT_L,
+        GN_MLSL,
+        GN_MLSL_LDS,
+        GN_ISRES,
+        AUGLAG,
+        AUGLAG_EQ,
+        G_MLSL,
+        G_MLSL_LDS,
+        GN_ESCH,
+        GN_AGS
     };
     enum solver_t {
         NLOPT = 0
@@ -47,6 +63,7 @@ private:
     std::vector<range_t> range;
     history_t history;
     bool check(const real_block&, double) const;
+    int select_nlopt_method(optimization::method) const;
 
 public:
     optimization() = delete;
@@ -83,7 +100,7 @@ private:
     static double instance_ineq_fun(unsigned n, const double* x, double* grad, void* my_func_data);
 
 public:
-    static double eps;
+    static optimization::method default_local_method;
 };
 }
 

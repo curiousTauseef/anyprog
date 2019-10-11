@@ -4,7 +4,7 @@
 
 namespace anyprog {
 
-double optimization::eps = 1e-5;
+optimization::method optimization::default_local_method = optimization::method::LN_COBYLA;
 
 double optimization::instance_fun(unsigned n, const double* x, double* grad, void* my_func_data)
 {
@@ -86,7 +86,7 @@ optimization::optimization(const funcation_t& fun, const std::vector<optimizatio
     for (size_t i = 0; i < this->point.rows(); ++i) {
         this->point(i, 0) = this->range[i].first + (this->range[i].second - this->range[i].first) * rng.generate();
     }
-} 
+}
 
 optimization::optimization(const real_block& v, const real_block& p)
     : solver(optimization::solver_t::NLOPT)
@@ -103,7 +103,7 @@ optimization::optimization(const real_block& v, const real_block& p)
         size_t m = x.rows();
         double sum = 0.0;
         for (size_t i = 0; i < m; ++i) {
-            sum += v(i,0) * x(i,0);
+            sum += v(i, 0) * x(i, 0);
         }
         return sum;
     };
@@ -123,13 +123,13 @@ optimization::optimization(const real_block& v, const std::vector<range_t>& rang
         size_t m = x.rows();
         double sum = 0.0;
         for (size_t i = 0; i < m; ++i) {
-            sum += v(i,0) * x(i,0);
+            sum += v(i, 0) * x(i, 0);
         }
         return sum;
     };
     random rng(0, 1);
     for (size_t i = 0; i < this->point.rows(); ++i) {
-        this->point(i, 0)= this->range[i].first + (this->range[i].second - this->range[i].first) * rng.generate();
+        this->point(i, 0) = this->range[i].first + (this->range[i].second - this->range[i].first) * rng.generate();
     }
 }
 optimization::optimization(const real_block& v, const real_block& p, const std::vector<range_t>& range)
@@ -147,7 +147,7 @@ optimization::optimization(const real_block& v, const real_block& p, const std::
         size_t m = x.rows();
         double sum = 0.0;
         for (size_t i = 0; i < m; ++i) {
-            sum += x(i,0) * v(i,0);
+            sum += x(i, 0) * v(i, 0);
         }
         return sum;
     };
@@ -172,9 +172,9 @@ optimization& optimization::set_equation_condition(const real_block& A, const re
             double v = 0;
             size_t n = x.rows();
             for (size_t j = 0; j < n; ++j) {
-                v += A(i, j) * x(j,0);
+                v += A(i, j) * x(j, 0);
             }
-            return v - b(i,0);
+            return v - b(i, 0);
         });
     }
     return *this;
@@ -187,9 +187,9 @@ optimization& optimization::set_inequation_condition(const real_block& A, const 
             double v = 0;
             size_t n = x.rows();
             for (size_t j = 0; j < n; ++j) {
-                v += A(i, j) * x(j,0);
+                v += A(i, j) * x(j, 0);
             }
-            return v - b(i,0);
+            return v - b(i, 0);
         });
     }
     return *this;
@@ -252,7 +252,7 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
     loop:
         for (size_t i = 0; i < max_random_iter; ++i) {
             for (size_t j = 0; j < dim; ++j) {
-                this->point(j, 0)= rng[j]->generate();
+                this->point(j, 0) = rng[j]->generate();
             }
             this->point = this->solve(m, eps, max_iter);
             obj_value = this->fval;
@@ -295,10 +295,8 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
     }
     return this->solve(m, eps, max_iter);
 }
-
-const real_block& optimization::nlopt_solve(optimization::method m, double eps, size_t max_iter)
+int optimization::select_nlopt_method(optimization::method m) const
 {
-    size_t dim = this->point.rows();
     nlopt_algorithm method;
     switch (m) {
     case optimization::method::LN_COBYLA:
@@ -328,12 +326,70 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     case optimization::method::LN_PRAXIS:
         method = NLOPT_LN_PRAXIS;
         break;
+    case optimization::method::GN_DIRECT:
+        method = NLOPT_GN_DIRECT;
+        break;
+    case optimization::method::GN_DIRECT_L:
+        method = NLOPT_GN_DIRECT_L;
+        break;
+    case optimization::method::GN_DIRECT_L_RAND:
+        method = NLOPT_GN_DIRECT_L_RAND;
+        break;
+    case optimization::method::GN_DIRECT_NOSCAL:
+        method = NLOPT_GN_DIRECT_NOSCAL;
+        break;
+    case optimization::method::GN_DIRECT_L_NOSCAL:
+        method = NLOPT_GN_DIRECT_L_NOSCAL;
+        break;
+    case optimization::method::GN_DIRECT_L_RAND_NOSCAL:
+        method = NLOPT_GN_DIRECT_L_RAND_NOSCAL;
+        break;
+    case optimization::method::GN_ORIG_DIRECT:
+        method = NLOPT_GN_ORIG_DIRECT;
+        break;
+    case optimization::method::GN_ORIG_DIRECT_L:
+        method = NLOPT_GN_ORIG_DIRECT_L;
+        break;
+    case optimization::method::GN_MLSL:
+        method = NLOPT_GN_MLSL;
+        break;
+    case optimization::method::GN_MLSL_LDS:
+        method = NLOPT_GN_MLSL_LDS;
+        break;
+    case optimization::method::GN_ISRES:
+        method = NLOPT_GN_ISRES;
+        break;
+    case optimization::method::AUGLAG:
+        method = NLOPT_AUGLAG;
+        break;
+    case optimization::method::AUGLAG_EQ:
+        method = NLOPT_AUGLAG_EQ;
+        break;
+    case optimization::method::G_MLSL:
+        method = NLOPT_G_MLSL;
+        break;
+    case optimization::method::G_MLSL_LDS:
+        method = NLOPT_G_MLSL_LDS;
+        break;
+    case optimization::method::GN_ESCH:
+        method = NLOPT_GN_ESCH;
+        break;
+    case optimization::method::GN_AGS:
+        method = NLOPT_GN_AGS;
+        break;
     default:
         method = NLOPT_LN_COBYLA;
         break;
     }
-    nlopt_opt opt_loc = nlopt_create(method, dim);
-    nlopt_opt opt = nlopt_create(NLOPT_LN_COBYLA, dim);
+    return method;
+}
+
+const real_block& optimization::nlopt_solve(optimization::method m, double eps, size_t max_iter)
+{
+    size_t dim = this->point.rows();
+    nlopt_algorithm loc_method = (nlopt_algorithm)this->select_nlopt_method(optimization::default_local_method), method = (nlopt_algorithm)this->select_nlopt_method(m);
+    nlopt_opt opt_loc = nlopt_create(loc_method, dim);
+    nlopt_opt opt = nlopt_create(method, dim);
     nlopt_set_local_optimizer(opt, opt_loc);
     help_t obj;
     obj.filter = &this->filter_cb;
@@ -377,12 +433,12 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
 
     double ret[dim];
     for (size_t i = 0; i < dim; ++i) {
-        ret[i] = this->point(i,0);
+        ret[i] = this->point(i, 0);
     }
 
     if (nlopt_optimize(opt, ret, &this->fval) >= 0) {
         for (size_t i = 0; i < dim; ++i) {
-            this->point(i, 0)= ret[i];
+            this->point(i, 0) = ret[i];
         }
     }
     if (this->filter_cb) {
@@ -411,7 +467,7 @@ optimization& optimization::set_enable_integer_filter()
     this->filter_cb = [&](real_block& x) {
         size_t m = x.rows();
         for (size_t i = 0; i < m; ++i) {
-            x(i, 0)= round(x(i, 0));
+            x(i, 0) = round(x(i, 0));
         }
     };
     return *this;
@@ -432,7 +488,7 @@ optimization& optimization::set_enable_binary_filter()
     this->filter_cb = [&](real_block& x) {
         size_t m = x.rows();
         for (size_t i = 0; i < m; ++i) {
-            x(i, 0)=round(x(i, 0));
+            x(i, 0) = round(x(i, 0));
         }
     };
     return *this;
