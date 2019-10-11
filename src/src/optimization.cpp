@@ -5,6 +5,7 @@
 namespace anyprog {
 
 optimization::method optimization::default_local_method = optimization::method::LN_COBYLA;
+bool optimization::enable_auto_object = true;
 
 double optimization::instance_fun(unsigned n, const double* x, double* grad, void* my_func_data)
 {
@@ -377,6 +378,8 @@ int optimization::select_nlopt_method(optimization::method m) const
     case optimization::method::GN_AGS:
         method = NLOPT_GN_AGS;
         break;
+    case optimization::method::GN_CRS2_LM:
+        method = NLOPT_GN_CRS2_LM;
     default:
         method = NLOPT_LN_COBYLA;
         break;
@@ -393,7 +396,17 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     nlopt_set_local_optimizer(opt, opt_loc);
     help_t obj;
     obj.filter = &this->filter_cb;
-    obj.fun = &this->cb;
+    funcation_t auto_obj = [&](const real_block& x) {
+        double sum = 0.0;
+        for (auto& i : this->eq_fun) {
+            sum += pow(i(x), 2);
+        }
+        for (auto& i : this->ineq_fun) {
+            sum += pow(std::max(0.0, i(x)), 2);
+        }
+        return this->cb(x) + sum / eps;
+    };
+    obj.fun = optimization::enable_auto_object ? &auto_obj : &this->cb;
     nlopt_set_min_objective(opt, optimization::instance_fun, &obj);
     nlopt_set_xtol_rel(opt, eps);
     nlopt_set_ftol_abs(opt, eps);

@@ -42,7 +42,8 @@ public:
         G_MLSL,
         G_MLSL_LDS,
         GN_ESCH,
-        GN_AGS
+        GN_AGS,
+        GN_CRS2_LM
     };
     enum solver_t {
         NLOPT = 0
@@ -101,6 +102,7 @@ private:
 
 public:
     static optimization::method default_local_method;
+    static bool enable_auto_object;
 };
 }
 
