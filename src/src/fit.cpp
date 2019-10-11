@@ -89,6 +89,32 @@ const real_block& fit::lssolve(const real_block& y, optimization::method m, doub
     this->point = opt.solve(m, eps, max_iter);
     return this->point;
 }
+const real_block& fit::lssolve(const real_block& y, const std::vector<optimization::range_t>& range, optimization::method m, double eps, size_t max_iter)
+{
+    optimization::funcation_t obj_fun = [&](const real_block& ret) {
+        real_block Y(this->dat.rows(), 1);
+        for (size_t i = 0; i < Y.rows(); ++i) {
+            Y(i, 0) = this->cb(this->dat.row(i), ret);
+        }
+        return (Y - y).norm() / Y.rows();
+    };
+    optimization opt(obj_fun, this->point, range);
+    opt.set_solver(this->solver);
+    if (!this->eq_fun.empty()) {
+        opt.set_equation_condition(this->eq_fun);
+    }
+    if (!this->ineq_fun.empty()) {
+        opt.set_inequation_condition(this->ineq_fun);
+    }
+
+    if (this->filter_cb) {
+        opt.set_filter_function(this->filter_cb);
+    }
+
+    this->point = opt.solve(m, eps, max_iter);
+    return this->point;
+}
+
 const real_block& fit::lssearch(const real_block& y, const std::vector<optimization::range_t>& range, size_t max_random_iter, size_t max_not_changed, double s, optimization::method m, double eps, size_t max_iter)
 {
     optimization::funcation_t obj_fun = [&](const real_block& ret) {
