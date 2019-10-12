@@ -5,7 +5,11 @@
 namespace anyprog {
 
 optimization::method optimization::default_local_method = optimization::method::LN_COBYLA;
-bool optimization::enable_auto_object = true;
+bool optimization::enable_auto_eq_objector = false;
+bool optimization::enable_auto_ineq_objector = false;
+double optimization::default_lower_bound = -10000;
+double optimization::default_upper_bound = 10000;
+size_t optimization::default_population = 1000;
 
 double optimization::instance_fun(unsigned n, const double* x, double* grad, void* my_func_data)
 {
@@ -57,6 +61,9 @@ optimization::optimization(const funcation_t& fun, const real_block& p)
     , range()
     , history()
 {
+    for (size_t i = 0; i < this->point.rows(); ++i) {
+        this->range.push_back({ optimization::default_lower_bound, optimization::default_upper_bound });
+    }
 }
 
 optimization::optimization(const funcation_t& fun, const real_block& p, const std::vector<optimization::range_t>& range)
@@ -100,6 +107,9 @@ optimization::optimization(const real_block& v, const real_block& p)
     , range()
     , history()
 {
+    for (size_t i = 0; i < this->point.rows(); ++i) {
+        this->range.push_back({ optimization::default_lower_bound, optimization::default_upper_bound });
+    }
     this->cb = [&](const real_block& x) {
         size_t m = x.rows();
         double sum = 0.0;
@@ -375,11 +385,9 @@ int optimization::select_nlopt_method(optimization::method m) const
     case optimization::method::GN_ESCH:
         method = NLOPT_GN_ESCH;
         break;
-    case optimization::method::GN_AGS:
-        method = NLOPT_GN_AGS;
-        break;
     case optimization::method::GN_CRS2_LM:
         method = NLOPT_GN_CRS2_LM;
+        break;
     default:
         method = NLOPT_LN_COBYLA;
         break;
@@ -398,20 +406,26 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     obj.filter = &this->filter_cb;
     funcation_t auto_obj = [&](const real_block& x) {
         double sum = 0.0;
-        for (auto& i : this->eq_fun) {
-            sum += pow(i(x), 2);
+        if (optimization::enable_auto_eq_objector) {
+            for (auto& i : this->eq_fun) {
+                sum += pow(i(x), 2);
+            }
         }
-        for (auto& i : this->ineq_fun) {
-            sum += pow(std::max(0.0, i(x)), 2);
+        if (optimization::enable_auto_ineq_objector) {
+            for (auto& i : this->ineq_fun) {
+                sum += pow(std::max(0.0, i(x)), 2);
+            }
         }
+
         return this->cb(x) + sum / eps;
     };
-    obj.fun = optimization::enable_auto_object ? &auto_obj : &this->cb;
+    obj.fun = &auto_obj;
     nlopt_set_min_objective(opt, optimization::instance_fun, &obj);
     nlopt_set_xtol_rel(opt, eps);
     nlopt_set_ftol_abs(opt, eps);
     nlopt_set_force_stop(opt, eps);
     nlopt_set_maxeval(opt, max_iter);
+    nlopt_set_population(opt, optimization::default_population);
     double lb[dim], ub[dim];
     if (!this->range.empty()) {
         for (size_t i = 0; i < dim; ++i) {

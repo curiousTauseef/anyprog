@@ -42,7 +42,6 @@ public:
         G_MLSL,
         G_MLSL_LDS,
         GN_ESCH,
-        GN_AGS,
         GN_CRS2_LM
     };
     enum solver_t {
@@ -102,7 +101,9 @@ private:
 
 public:
     static optimization::method default_local_method;
-    static bool enable_auto_object;
+    static bool enable_auto_eq_objector, enable_auto_ineq_objector;
+    static double default_upper_bound, default_lower_bound;
+    static size_t default_population;
 };
 }
 
