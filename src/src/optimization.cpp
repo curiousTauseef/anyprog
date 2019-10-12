@@ -9,7 +9,7 @@ bool optimization::enable_auto_eq_objector = false;
 bool optimization::enable_auto_ineq_objector = false;
 double optimization::default_lower_bound = -10000;
 double optimization::default_upper_bound = 10000;
-size_t optimization::default_population = 1000;
+size_t optimization::default_population = 200;
 
 double optimization::instance_fun(unsigned n, const double* x, double* grad, void* my_func_data)
 {
