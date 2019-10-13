@@ -5,8 +5,8 @@
 namespace anyprog {
 
 optimization::method optimization::default_local_method = optimization::method::LN_COBYLA;
-bool optimization::enable_auto_eq_objector = false;
-bool optimization::enable_auto_ineq_objector = false;
+bool optimization::enable_auto_eq_objector = true;
+bool optimization::enable_auto_ineq_objector = true;
 double optimization::default_lower_bound = -10000;
 double optimization::default_upper_bound = 10000;
 size_t optimization::default_population = 200;
@@ -323,6 +323,8 @@ int optimization::select_nlopt_method(optimization::method m) const
     switch (m) {
     case optimization::method::LN_COBYLA:
         method = NLOPT_LN_COBYLA;
+        optimization::enable_auto_eq_objector = false;
+        optimization::enable_auto_ineq_objector = false;
         break;
     case optimization::method::LN_NEWUOA:
         method = NLOPT_LN_NEWUOA;
@@ -368,9 +370,13 @@ int optimization::select_nlopt_method(optimization::method m) const
         break;
     case optimization::method::GN_ORIG_DIRECT:
         method = NLOPT_GN_ORIG_DIRECT;
+        optimization::enable_auto_eq_objector = true;
+        optimization::enable_auto_ineq_objector = false;
         break;
     case optimization::method::GN_ORIG_DIRECT_L:
         method = NLOPT_GN_ORIG_DIRECT_L;
+        optimization::enable_auto_eq_objector = true;
+        optimization::enable_auto_ineq_objector = false;
         break;
     case optimization::method::GN_MLSL:
         method = NLOPT_GN_MLSL;
@@ -380,6 +386,8 @@ int optimization::select_nlopt_method(optimization::method m) const
         break;
     case optimization::method::GN_ISRES:
         method = NLOPT_GN_ISRES;
+        optimization::enable_auto_eq_objector = false;
+        optimization::enable_auto_ineq_objector = false;
         break;
     case optimization::method::AUGLAG:
         method = NLOPT_AUGLAG;
@@ -401,6 +409,8 @@ int optimization::select_nlopt_method(optimization::method m) const
         break;
     case optimization::method::GN_AGS:
         method = NLOPT_GN_AGS;
+        optimization::enable_auto_eq_objector = true;
+        optimization::enable_auto_ineq_objector = false;
         break;
     default:
         method = NLOPT_LN_COBYLA;
