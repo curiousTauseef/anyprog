@@ -95,7 +95,7 @@ const real_block& fit::lssolve(const real_block& y, optimization::method m, doub
         for (size_t i = 0; i < Y.rows(); ++i) {
             Y(i, 0) = this->cb(this->dat.row(i), ret);
         }
-        return (Y - y).norm() / Y.rows();
+        return (Y - y).norm() / (2.0 * Y.rows());
     };
     optimization opt(obj_fun, this->point);
     opt.set_solver(this->solver);
@@ -120,7 +120,7 @@ const real_block& fit::lssolve(const real_block& y, const std::vector<optimizati
         for (size_t i = 0; i < Y.rows(); ++i) {
             Y(i, 0) = this->cb(this->dat.row(i), ret);
         }
-        return (Y - y).norm() / Y.rows();
+        return (Y - y).norm() / (2.0 * Y.rows());
     };
     optimization opt(obj_fun, this->point, range);
     opt.set_solver(this->solver);
@@ -146,7 +146,7 @@ const real_block& fit::lssearch(const real_block& y, const std::vector<optimizat
         for (size_t i = 0; i < Y.rows(); ++i) {
             Y(i, 0) = this->cb(this->dat.row(i), ret);
         }
-        return (Y - y).norm() / Y.rows();
+        return (Y - y).norm() / (2.0 * Y.rows());
     };
     optimization opt(obj_fun, this->point, range);
     opt.set_solver(this->solver);
