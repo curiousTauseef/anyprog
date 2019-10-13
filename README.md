@@ -11,6 +11,7 @@ A C++ scientific library for mathematical programming and data fitting
     - [nonlinear-constrained-optimization](#nonlinear-constrained-optimization)
       - [example-1](#example-1-1)
       - [example-2](#example-2-1)
+      - [example-3](#example-3)
     - [linear-optimization](#linear-optimization)
     - [quadratic-optimazition](#quadratic-optimazition)
     - [mixed-integer-optimazition](#mixed-integer-optimazition)
@@ -163,7 +164,7 @@ int main(int argc, char** argv)
         return x(0) - x(1);
     });
 
-    std::vector<anyprog::optimization::inequation_condition_funcation_t> eq;
+    std::vector<anyprog::optimization::equation_condition_funcation_t> eq;
     eq.emplace_back([&](const anyprog::real_block& x) {
         return x(0) + 2 * x(1) - 5;
     });
@@ -192,6 +193,53 @@ object=	-1.02165
 
 ```
 #### example-2
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+        return pow(1 - x(0), 2) + 100 * pow(x(1) - pow(x(0), 2), 2);
+    };
+
+    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    ineq.emplace_back([&](const anyprog::real_block& x) {
+        return pow(x(0) - 1. / 3., 2) + pow(x(1) - 1. / 3., 2) - pow(1. / 3., 2);
+    });
+
+    ineq.emplace_back([&](const anyprog::real_block& x) {
+        return x(0) + x(1) - 2;
+    });
+
+    ineq.emplace_back([&](const anyprog::real_block& x) {
+        return x(0) - 2 * x(1) - 3;
+    });
+
+    std::vector<anyprog::optimization::range_t> range = { { 0, 0.5 }, { 0.2, 0.8 } };
+
+    anyprog::optimization opt(obj, range);
+    opt.set_inequation_condition(ineq);
+    auto ret = opt.solve();
+
+    std::cout << "solution:\n";
+    for (size_t i = 0; i < ret.rows(); ++i) {
+        std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+    }
+    std::cout << "object=\t" << opt.obj(ret) << "\n";
+    return 0;
+}
+```
+```txt
+solution:
+x(0)=	0.5
+x(1)=	0.250026
+object=	0.25
+
+```
+#### example-3
 ```cpp
 #include <anyprog/anyprog.hpp>
 #include <chrono>
