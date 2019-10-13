@@ -53,6 +53,7 @@ double optimization::instance_ineq_fun(unsigned n, const double* x, double* grad
 optimization::optimization(const funcation_t& fun, const real_block& p)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
+    , ok(false)
     , point(p)
     , cb(fun)
     , filter_cb()
@@ -69,6 +70,7 @@ optimization::optimization(const funcation_t& fun, const real_block& p)
 optimization::optimization(const funcation_t& fun, const real_block& p, const std::vector<optimization::range_t>& range)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
+    , ok(false)
     , point(p)
     , cb(fun)
     , filter_cb()
@@ -82,6 +84,7 @@ optimization::optimization(const funcation_t& fun, const real_block& p, const st
 optimization::optimization(const funcation_t& fun, const std::vector<optimization::range_t>& range)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
+    , ok(false)
     , point(range.size(), 1)
     , cb(fun)
     , filter_cb()
@@ -99,6 +102,7 @@ optimization::optimization(const funcation_t& fun, const std::vector<optimizatio
 optimization::optimization(const real_block& v, const real_block& p)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
+    , ok(false)
     , point(p)
     , cb()
     , filter_cb()
@@ -122,6 +126,7 @@ optimization::optimization(const real_block& v, const real_block& p)
 optimization::optimization(const real_block& v, const std::vector<range_t>& range)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
+    , ok(false)
     , point(range.size(), 1)
     , cb()
     , filter_cb()
@@ -146,6 +151,7 @@ optimization::optimization(const real_block& v, const std::vector<range_t>& rang
 optimization::optimization(const real_block& v, const real_block& p, const std::vector<range_t>& range)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
+    , ok(false)
     , point(p)
     , cb()
     , filter_cb()
@@ -212,6 +218,11 @@ optimization& optimization::set_solver(optimization::solver_t s)
     return *this;
 }
 
+bool optimization::is_ok() const
+{
+    return this->ok;
+}
+
 double optimization::obj(const real_block& ret) const
 {
     return this->cb(ret);
@@ -269,7 +280,7 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
             obj_value = this->fval;
             bool gcheck = this->check(global_point, eps), lcheck = this->check(this->point, eps);
             bool case1 = !gcheck && lcheck, case2 = lcheck && (global_obj_value - obj_value) >= eps;
-            if (case1 || case2) {
+            if (this->ok && (case1 || case2)) {
                 global_point = this->point;
                 global_obj_value = obj_value;
                 not_changed = 0;
@@ -464,6 +475,7 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     }
 
     if (nlopt_optimize(opt, ret, &this->fval) >= 0) {
+        this->ok = true;
         for (size_t i = 0; i < dim; ++i) {
             this->point(i, 0) = ret[i];
         }

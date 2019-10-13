@@ -55,6 +55,7 @@ private:
     };
     solver_t solver;
     double fval;
+    bool ok;
     real_block point;
     funcation_t cb;
     filter_funcation_t filter_cb;
@@ -85,6 +86,7 @@ public:
     optimization& set_enable_binary_filter();
     optimization& set_solver(optimization::solver_t);
     const history_t& get_history() const;
+    bool is_ok() const;
 
 public:
     const real_block& solve(optimization::method = optimization::method::LN_COBYLA, double = 1e-5, size_t = 1000);

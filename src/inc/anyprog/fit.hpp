@@ -22,6 +22,7 @@ private:
 
 public:
     fit() = delete;
+    fit(const real_block&,size_t);
     fit(const real_block&, const std::vector<funcation_t>&, const real_block&);
     virtual ~fit() = default;
     fit& set_equation_condition(const std::vector<optimization::equation_condition_funcation_t>&);
@@ -30,7 +31,7 @@ public:
     fit& set_solver(optimization::solver_t);
 
 public:
-    real_block solve(const real_block&) const;
+    const real_block& solve(const real_block&);
     real_block fitting(const real_block&) const;
     const real_block& lssolve(const real_block&, optimization::method = optimization::method::LN_COBYLA, double eps = 1e-5, size_t = 1000);
     const real_block& lssolve(const real_block&, const std::vector<optimization::range_t>& range, optimization::method = optimization::method::LN_COBYLA, double eps = 1e-5, size_t = 1000);

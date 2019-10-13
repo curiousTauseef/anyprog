@@ -2,6 +2,29 @@
 #include <iostream>
 namespace anyprog {
 
+fit::fit(const real_block& x, size_t m)
+    : solver(optimization::solver_t::NLOPT)
+    , dat(x)
+    , X(x.rows(), m + 1)
+    , point(m + 1, 1)
+    , cb()
+    , filter_cb()
+    , eq_fun()
+    , ineq_fun()
+{
+    for (size_t i = 0; i < X.rows(); ++i) {
+        for (size_t j = 0; j < X.cols(); ++j) {
+            X(i, j) = pow(x(i, 0), m - j);
+        }
+    }
+    this->cb = [&, m](const real_block& row, const real_block& ret) {
+        double sum = 0;
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            sum += ret(i, 0) * pow(row(0, 0), m - i);
+        }
+        return sum;
+    };
+}
 fit::fit(const real_block& x, const std::vector<funcation_t>& fun, const real_block& param)
     : solver(optimization::solver_t::NLOPT)
     , dat(x)
@@ -41,12 +64,13 @@ fit& fit::set_filter_function(const fit::filter_funcation_t& cb)
     return *this;
 }
 
-real_block fit::solve(const real_block& y) const
+const real_block& fit::solve(const real_block& y)
 {
     if (X.rows() == X.cols()) {
-        return X.ldlt().solve(y);
+        this->point = X.ldlt().solve(y);
     }
-    return X.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y);
+    this->point = X.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y);
+    return this->point;
 }
 
 real_block fit::fitting(const real_block& ret) const
