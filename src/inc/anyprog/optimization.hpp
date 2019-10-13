@@ -104,8 +104,8 @@ private:
 
 public:
     static optimization::method default_local_method;
-    static bool enable_auto_eq_objector, enable_auto_ineq_objector;
-    static double default_upper_bound, default_lower_bound;
+    static bool enable_auto_eq_objector, enable_auto_ineq_objector, enable_default_bound_step;
+    static double default_bound_step;
     static size_t default_population;
 };
 }

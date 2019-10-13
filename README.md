@@ -8,10 +8,11 @@ A C++ scientific library for mathematical programming and data fitting
     - [nonlinear-unconstrained-optimization](#nonlinear-unconstrained-optimization)
       - [example-1](#example-1)
       - [example-2](#example-2)
+      - [example-3](#example-3)
     - [nonlinear-constrained-optimization](#nonlinear-constrained-optimization)
       - [example-1](#example-1-1)
       - [example-2](#example-2-1)
-      - [example-3](#example-3)
+      - [example-3](#example-3-1)
     - [linear-optimization](#linear-optimization)
     - [quadratic-optimazition](#quadratic-optimazition)
     - [mixed-integer-optimazition](#mixed-integer-optimazition)
@@ -26,6 +27,44 @@ A C++ scientific library for mathematical programming and data fitting
 
 ### nonlinear-unconstrained-optimization
 #### example-1
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+        return 100 * pow(x(1, 0) - pow(x(0, 0), 2), 2) + pow(1 - x(0, 0), 2);
+    };
+
+    anyprog::real_block param(2, 1);
+    param(0, 0) = -1;
+    param(1, 0) = 2;
+
+    anyprog::optimization opt(obj, param);
+
+    auto ret = opt.solve(anyprog::optimization::LN_NEWUOA, 1e-10);
+
+    std::cout << "solution:\n";
+    for (size_t i = 0; i < ret.rows(); ++i) {
+        std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+    }
+    std::cout << "object=\t" << opt.obj(ret) << "\n";
+    return 0;
+}
+
+```
+```txt
+solution:
+x(0)=	0.999997
+x(1)=	0.999995
+object=	1.84806e-11
+
+```
+
+#### example-2
 ```cpp
 #include <anyprog/anyprog.hpp>
 #include <chrono>
@@ -95,7 +134,7 @@ x(1)=	1.00506
 object=	6.45722e-06
 
 ```
-#### example-2
+#### example-3
 ```cpp
 #include <anyprog/anyprog.hpp>
 #include <chrono>

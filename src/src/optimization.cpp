@@ -7,8 +7,8 @@ namespace anyprog {
 optimization::method optimization::default_local_method = optimization::method::LN_COBYLA;
 bool optimization::enable_auto_eq_objector = true;
 bool optimization::enable_auto_ineq_objector = true;
-double optimization::default_lower_bound = -10000;
-double optimization::default_upper_bound = 10000;
+bool optimization::enable_default_bound_step = true;
+double optimization::default_bound_step = 10;
 size_t optimization::default_population = 200;
 
 double optimization::instance_fun(unsigned n, const double* x, double* grad, void* my_func_data)
@@ -62,8 +62,11 @@ optimization::optimization(const funcation_t& fun, const real_block& p)
     , range()
     , history()
 {
-    for (size_t i = 0; i < this->point.rows(); ++i) {
-        this->range.push_back({ optimization::default_lower_bound, optimization::default_upper_bound });
+    if (optimization::enable_default_bound_step) {
+        double bound_step = fabs(optimization::default_bound_step);
+        for (size_t i = 0; i < this->point.rows(); ++i) {
+            this->range.push_back({ p(i, 0) - bound_step, p(i, 0) + bound_step });
+        }
     }
 }
 
@@ -111,8 +114,11 @@ optimization::optimization(const real_block& v, const real_block& p)
     , range()
     , history()
 {
-    for (size_t i = 0; i < this->point.rows(); ++i) {
-        this->range.push_back({ optimization::default_lower_bound, optimization::default_upper_bound });
+    if (optimization::enable_default_bound_step) {
+        double bound_step = fabs(optimization::default_bound_step);
+        for (size_t i = 0; i < this->point.rows(); ++i) {
+            this->range.push_back({ p(i, 0) - bound_step, p(i, 0) + bound_step });
+        }
     }
     this->cb = [&](const real_block& x) {
         size_t m = x.rows();
