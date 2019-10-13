@@ -399,6 +399,9 @@ int optimization::select_nlopt_method(optimization::method m) const
     case optimization::method::GN_CRS2_LM:
         method = NLOPT_GN_CRS2_LM;
         break;
+    case optimization::method::GN_AGS:
+        method = NLOPT_GN_AGS;
+        break;
     default:
         method = NLOPT_LN_COBYLA;
         break;

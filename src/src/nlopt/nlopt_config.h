@@ -148,6 +148,9 @@
 #undef VERSION
 
 
+/* Define if compiled including C++11-based routines */
+#define NLOPT_CXX11
+
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 

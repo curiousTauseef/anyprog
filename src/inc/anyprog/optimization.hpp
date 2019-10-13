@@ -42,7 +42,8 @@ public:
         G_MLSL,
         G_MLSL_LDS,
         GN_ESCH,
-        GN_CRS2_LM
+        GN_CRS2_LM,
+        GN_AGS
     };
     enum solver_t {
         NLOPT = 0
