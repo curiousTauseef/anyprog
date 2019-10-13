@@ -591,7 +591,7 @@ int main(int argc, char** argv)
     param(2, 0) = -0.1;
     std::vector<anyprog::fit::funcation_t> fun;
     fun.emplace_back([](const anyprog::real_block& x, const anyprog::real_block& p) {
-        return cos(p(1, 0) * x(0, 0)) * pow(M_E, p(2, 0) * x(0, 0));
+        return (cos(p(1, 0) * x(0, 0)) * pow(M_E, p(2, 0) * x(0, 0))) / p(0, 0);
     });
     anyprog::fit fit(x, fun, param);
     auto ret = fit.lssolve(y, anyprog::optimization::method::LN_NELDERMEAD), fitting = fit.fitting(ret);
@@ -604,8 +604,8 @@ int main(int argc, char** argv)
 }
 ```
 ```txt
-  1.00002
- -1.00122
--0.207236
+   57.949
+  1.00094
+-0.206466
 ```
 ![nlfitting](doc/nlfitting.png)
