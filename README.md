@@ -681,7 +681,7 @@ int main(int argc, char** argv)
         return (cos(p(1, 0) * x(0, 0)) * pow(M_E, p(2, 0) * x(0, 0))) / p(0, 0);
     });
     anyprog::fit fit(x, fun, param);
-    auto ret = fit.lssolve(y, anyprog::optimization::method::LN_NELDERMEAD), fitting = fit.fitting(ret);
+    auto ret = fit.lssolve(y), fitting = fit.fitting(ret);
     std::cout << ret << std::endl;
     std::ofstream out("dat.csv", std::ios::trunc | std::ios::ate);
     for (size_t i = 0; i < x.rows(); ++i) {
@@ -691,8 +691,8 @@ int main(int argc, char** argv)
 }
 ```
 ```txt
-   57.949
-  1.00094
--0.206466
+   0.9375
+  1.00111
+-0.207208
 ```
 ![nlfitting](doc/nlfitting.png)
