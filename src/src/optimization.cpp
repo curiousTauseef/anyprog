@@ -50,6 +50,17 @@ double optimization::instance_ineq_fun(unsigned n, const double* x, double* grad
     return (*help->fun)(ret);
 }
 
+real_block optimization::fminunc(const optimization::funcation_t& obj, const real_block& p, double eps, size_t max_iter)
+{
+    optimization opt(obj, p);
+    return opt.solve(optimization::method::LN_NEWUOA, eps, max_iter);
+}
+real_block optimization::fminbnd(const optimization::funcation_t& obj, const std::vector<range_t>& range, double eps, size_t max_iter)
+{
+    optimization opt(obj, range);
+    return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
+}
+
 optimization::optimization(const funcation_t& fun, const real_block& p)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)

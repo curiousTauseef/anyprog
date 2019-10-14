@@ -39,28 +39,37 @@ int main(int argc, char** argv)
         return 100 * pow(x(1, 0) - pow(x(0, 0), 2), 2) + pow(1 - x(0, 0), 2);
     };
 
+    std::vector<anyprog::optimization::range_t> range = { { -10, 10 }, { -10, 10 } };
+
+    auto ret1 = anyprog::optimization::fminbnd(obj, range, 1e-10);
+
     anyprog::real_block param(2, 1);
     param(0, 0) = -1;
     param(1, 0) = 2;
 
-    anyprog::optimization opt(obj, param);
-
-    auto ret = opt.solve(anyprog::optimization::LN_NEWUOA, 1e-10);
+    auto ret2 = anyprog::optimization::fminunc(obj, param, 1e-10);
 
     std::cout << "solution:\n";
-    for (size_t i = 0; i < ret.rows(); ++i) {
-        std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+    for (size_t i = 0; i < ret1.rows(); ++i) {
+        std::cout << "x1(" << i << ")=\t" << ret1(i, 0) << "\n";
     }
-    std::cout << "object=\t" << opt.obj(ret) << "\n";
-    return 0;
+    std::cout << "object1=\t" << obj(ret1) << "\n\n";
+    for (size_t i = 0; i < ret2.rows(); ++i) {
+        std::cout << "x2(" << i << ")=\t" << ret2(i, 0) << "\n";
+    }
+    std::cout << "object2=\t" << obj(ret2) << "\n";
 }
 
 ```
 ```txt
 solution:
-x(0)=	0.999997
-x(1)=	0.999995
-object=	1.84806e-11
+x1(0)=	1
+x1(1)=	1.00001
+object1=	6.42249e-10
+
+x2(0)=	0.999997
+x2(1)=	0.999995
+object2=	1.84806e-11
 
 ```
 

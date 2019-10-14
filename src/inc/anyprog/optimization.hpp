@@ -107,6 +107,10 @@ public:
     static bool enable_auto_eq_objector, enable_auto_ineq_objector, enable_default_bound_step;
     static double default_bound_step;
     static size_t default_population;
+
+public:
+    static real_block fminunc(const optimization::funcation_t&, const real_block&, double = 1e-5, size_t = 1000);
+    static real_block fminbnd(const optimization::funcation_t&, const std::vector<range_t>&, double = 1e-5, size_t = 1000);
 };
 }
 
