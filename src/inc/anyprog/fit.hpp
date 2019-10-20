@@ -1,5 +1,5 @@
-#ifndef GSLPP_FIT_HPP
-#define GSLPP_FIT_HPP
+#ifndef ANYPROG_FIT_HPP
+#define ANYPROG_FIT_HPP
 
 #include "block.hpp"
 #include "optimization.hpp"
