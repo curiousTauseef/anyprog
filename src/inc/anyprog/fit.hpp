@@ -11,23 +11,26 @@ class fit {
 public:
     typedef std::function<double(const real_block&, const real_block&)> funcation_t;
     typedef std::function<void(real_block&)> filter_funcation_t;
+    typedef std::function<real_block(const real_block&)> gradient_function_t;
 
 private:
     optimization::solver_t solver;
     real_block dat, X, point;
     funcation_t cb;
     filter_funcation_t filter_cb;
+    gradient_function_t grad_cb;
     std::vector<optimization::equation_condition_funcation_t> eq_fun;
     std::vector<optimization::inequation_condition_funcation_t> ineq_fun;
 
 public:
     fit() = delete;
-    fit(const real_block&,size_t);
+    fit(const real_block&, size_t);
     fit(const real_block&, const std::vector<funcation_t>&, const real_block&);
     virtual ~fit() = default;
     fit& set_equation_condition(const std::vector<optimization::equation_condition_funcation_t>&);
     fit& set_inequation_condition(const std::vector<optimization::inequation_condition_funcation_t>&);
     fit& set_filter_function(const filter_funcation_t&);
+    fit& set_gradient_function(const gradient_function_t&);
     fit& set_solver(optimization::solver_t);
 
 public:

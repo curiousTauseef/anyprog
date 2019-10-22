@@ -14,6 +14,7 @@ public:
     typedef funcation_t equation_condition_funcation_t;
     typedef funcation_t inequation_condition_funcation_t;
     typedef std::function<void(real_block&)> filter_funcation_t;
+    typedef std::function<real_block(const real_block&)> gradient_function_t;
     typedef std::pair<double, double> range_t;
     typedef std::vector<std::pair<double, real_block>> history_t;
     enum method {
@@ -26,6 +27,9 @@ public:
         LN_AUGLAG_EQ,
         LN_BOBYQA,
         LN_PRAXIS,
+        LD_MMA,
+        LD_SLSQP,
+        LD_LBFGS,
         GN_DIRECT,
         GN_DIRECT_L,
         GN_DIRECT_L_RAND,
@@ -53,6 +57,7 @@ private:
     struct help_t {
         optimization::funcation_t* fun;
         optimization::filter_funcation_t* filter;
+        optimization::gradient_function_t* grad;
     };
     solver_t solver;
     double fval;
@@ -60,6 +65,7 @@ private:
     real_block point;
     funcation_t cb;
     filter_funcation_t filter_cb;
+    gradient_function_t grad_cb;
     std::vector<equation_condition_funcation_t> eq_fun;
     std::vector<inequation_condition_funcation_t> ineq_fun;
     std::vector<range_t> range;
@@ -83,6 +89,7 @@ public:
     optimization& set_equation_condition(const real_block&, const real_block&);
     optimization& set_inequation_condition(const real_block&, const real_block&);
     optimization& set_filter_function(const filter_funcation_t&);
+    optimization& set_gradient_function(const gradient_function_t&);
     optimization& set_enable_integer_filter();
     optimization& set_enable_binary_filter();
     optimization& set_solver(optimization::solver_t);
@@ -110,6 +117,7 @@ public:
 
 public:
     static real_block fminunc(const optimization::funcation_t&, const real_block&, double = 1e-5, size_t = 1000);
+    static real_block fminunc(const optimization::funcation_t&,const optimization::gradient_function_t&, const real_block&, double = 1e-5, size_t = 1000);
     static real_block fminbnd(const optimization::funcation_t&, const std::vector<range_t>&, double = 1e-5, size_t = 1000);
 };
 }

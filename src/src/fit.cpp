@@ -9,6 +9,7 @@ fit::fit(const real_block& x, size_t m)
     , point(m + 1, 1)
     , cb()
     , filter_cb()
+    , grad_cb()
     , eq_fun()
     , ineq_fun()
 {
@@ -64,6 +65,12 @@ fit& fit::set_filter_function(const fit::filter_funcation_t& cb)
     return *this;
 }
 
+fit& fit::set_gradient_function(const fit::gradient_function_t& cb)
+{
+    this->grad_cb = cb;
+    return *this;
+}
+
 const real_block& fit::solve(const real_block& y)
 {
     if (X.rows() == X.cols()) {
@@ -109,6 +116,9 @@ const real_block& fit::lssolve(const real_block& y, optimization::method m, doub
     if (this->filter_cb) {
         opt.set_filter_function(this->filter_cb);
     }
+    if (this->grad_cb) {
+        opt.set_gradient_function(this->grad_cb);
+    }
 
     this->point = opt.solve(m, eps, max_iter);
     return this->point;
@@ -133,6 +143,9 @@ const real_block& fit::lssolve(const real_block& y, const std::vector<optimizati
 
     if (this->filter_cb) {
         opt.set_filter_function(this->filter_cb);
+    }
+    if (this->grad_cb) {
+        opt.set_gradient_function(this->grad_cb);
     }
 
     this->point = opt.solve(m, eps, max_iter);
@@ -159,6 +172,9 @@ const real_block& fit::lssearch(const real_block& y, const std::vector<optimizat
 
     if (this->filter_cb) {
         opt.set_filter_function(this->filter_cb);
+    }
+    if (this->grad_cb) {
+        opt.set_gradient_function(this->grad_cb);
     }
 
     this->point = opt.search(max_random_iter, max_not_changed, s, m, eps, max_iter);

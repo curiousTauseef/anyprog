@@ -1,6 +1,7 @@
 #include "optimization.hpp"
 #include "nlopt/nlopt.h"
 #include "random.hpp"
+#include <iostream>
 
 namespace anyprog {
 
@@ -21,6 +22,13 @@ double optimization::instance_fun(unsigned n, const double* x, double* grad, voi
     if (*help->filter) {
         (*help->filter)(ret);
     }
+    if (grad && *help->grad) {
+        real_block tmp = (*help->grad)(ret);
+        for (size_t i = 0; i < n; ++i) {
+            grad[i] = tmp(i, 0);
+        }
+    }
+
     return (*help->fun)(ret);
 }
 
@@ -55,6 +63,12 @@ real_block optimization::fminunc(const optimization::funcation_t& obj, const rea
     optimization opt(obj, p);
     return opt.solve(optimization::method::LN_NEWUOA, eps, max_iter);
 }
+real_block optimization::fminunc(const optimization::funcation_t& obj, const optimization::gradient_function_t& grad, const real_block& p, double eps, size_t max_iter)
+{
+    optimization opt(obj, p);
+    opt.set_gradient_function(grad);
+    return opt.solve(optimization::method::LD_LBFGS, eps, max_iter);
+}
 real_block optimization::fminbnd(const optimization::funcation_t& obj, const std::vector<range_t>& range, double eps, size_t max_iter)
 {
     optimization opt(obj, range);
@@ -68,6 +82,7 @@ optimization::optimization(const funcation_t& fun, const real_block& p)
     , point(p)
     , cb(fun)
     , filter_cb()
+    , grad_cb()
     , eq_fun()
     , ineq_fun()
     , range()
@@ -88,6 +103,7 @@ optimization::optimization(const funcation_t& fun, const real_block& p, const st
     , point(p)
     , cb(fun)
     , filter_cb()
+    , grad_cb()
     , eq_fun()
     , ineq_fun()
     , range(range)
@@ -102,6 +118,7 @@ optimization::optimization(const funcation_t& fun, const std::vector<optimizatio
     , point(range.size(), 1)
     , cb(fun)
     , filter_cb()
+    , grad_cb()
     , eq_fun()
     , ineq_fun()
     , range(range)
@@ -120,6 +137,7 @@ optimization::optimization(const real_block& v, const real_block& p)
     , point(p)
     , cb()
     , filter_cb()
+    , grad_cb()
     , eq_fun()
     , ineq_fun()
     , range()
@@ -147,6 +165,7 @@ optimization::optimization(const real_block& v, const std::vector<range_t>& rang
     , point(range.size(), 1)
     , cb()
     , filter_cb()
+    , grad_cb()
     , eq_fun()
     , ineq_fun()
     , range(range)
@@ -172,6 +191,7 @@ optimization::optimization(const real_block& v, const real_block& p, const std::
     , point(p)
     , cb()
     , filter_cb()
+    , grad_cb()
     , eq_fun()
     , ineq_fun()
     , range(range)
@@ -271,6 +291,13 @@ optimization& optimization::set_filter_function(const optimization::filter_funca
     this->filter_cb = cb;
     return *this;
 }
+
+optimization& optimization::set_gradient_function(const optimization::gradient_function_t& cb)
+{
+    this->grad_cb = cb;
+    return *this;
+}
+
 const real_block& optimization::search(size_t max_random_iter, size_t max_not_changed, double s, optimization::method m, double eps, size_t max_iter)
 {
     if (!this->range.empty()) {
@@ -367,6 +394,16 @@ int optimization::select_nlopt_method(optimization::method m) const
     case optimization::method::LN_PRAXIS:
         method = NLOPT_LN_PRAXIS;
         break;
+    case optimization::method::LD_MMA:
+        method = NLOPT_LD_MMA;
+        optimization::enable_auto_eq_objector = true;
+        break;
+    case optimization::method::LD_SLSQP:
+        method = NLOPT_LD_SLSQP;
+        break;
+    case optimization::method::LD_LBFGS:
+        method = NLOPT_LD_LBFGS;
+        break;
     case optimization::method::GN_DIRECT:
         method = NLOPT_GN_DIRECT;
         break;
@@ -445,6 +482,7 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     nlopt_set_local_optimizer(opt, opt_loc);
     help_t obj;
     obj.filter = &this->filter_cb;
+    obj.grad = &this->grad_cb;
     funcation_t auto_obj = [&](const real_block& x) {
         double sum = 0.0;
         if (optimization::enable_auto_eq_objector) {
