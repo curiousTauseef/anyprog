@@ -35,41 +35,53 @@ A C++ scientific library for mathematical programming and data fitting
 
 int main(int argc, char** argv)
 {
+    auto output = [](const anyprog::real_block& ret, const anyprog::optimization::funcation_t& obj) {
+        std::cout << "solution:\n";
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+        std::cout << "object=\t" << obj(ret) << "\n\n";
+    };
+
     anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
         return 100 * pow(x(1, 0) - pow(x(0, 0), 2), 2) + pow(1 - x(0, 0), 2);
     };
 
     std::vector<anyprog::optimization::range_t> range = { { -10, 10 }, { -10, 10 } };
-
-    auto ret1 = anyprog::optimization::fminbnd(obj, range, 1e-10);
+    output(anyprog::optimization::fminbnd(obj, range, 1e-10), obj);
 
     anyprog::real_block param(2, 1);
-    param(0, 0) = -1;
-    param(1, 0) = 2;
+    param(0, 0) = 0;
+    param(1, 0) = 0;
+    output(anyprog::optimization::fminunc(obj, param, 1e-10), obj);
 
-    auto ret2 = anyprog::optimization::fminunc(obj, param, 1e-10);
+    auto grad = [&](const anyprog::real_block& x) {
+        anyprog::real_block ret(x.rows(), 1);
+        ret(0, 0) = 2 * x(0) - 400 * x(0) * (x(1) - pow(x(0), 2)) - 2;
+        ret(1, 0) = 200 * x(1) - 200 * pow(x(0), 2);
+        return ret;
+    };
+    output(anyprog::optimization::fminunc(obj, grad, param), obj);
 
-    std::cout << "solution:\n";
-    for (size_t i = 0; i < ret1.rows(); ++i) {
-        std::cout << "x1(" << i << ")=\t" << ret1(i, 0) << "\n";
-    }
-    std::cout << "object1=\t" << obj(ret1) << "\n\n";
-    for (size_t i = 0; i < ret2.rows(); ++i) {
-        std::cout << "x2(" << i << ")=\t" << ret2(i, 0) << "\n";
-    }
-    std::cout << "object2=\t" << obj(ret2) << "\n";
+    return 0;
 }
 
 ```
 ```txt
 solution:
-x1(0)=	1
-x1(1)=	1.00001
-object1=	6.42249e-10
+x(0)=	0.999986
+x(1)=	0.999971
+object=	2.16042e-10
 
-x2(0)=	0.999997
-x2(1)=	0.999995
-object2=	1.84806e-11
+solution:
+x(0)=	1
+x(1)=	1
+object=	3.05615e-14
+
+solution:
+x(0)=	1
+x(1)=	1
+object=	3.56293e-17
 
 ```
 
