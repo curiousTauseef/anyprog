@@ -551,6 +551,7 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     if (this->filter_cb) {
         this->filter_cb(this->point);
     }
+    this->ok = this->ok && this->check(this->point,eps);
     nlopt_destroy(opt);
     nlopt_destroy(opt_loc);
     return this->point;
