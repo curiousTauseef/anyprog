@@ -17,6 +17,8 @@ A C++ scientific library for mathematical programming and data fitting
     - [quadratic-optimazition](#quadratic-optimazition)
     - [mixed-integer-optimazition](#mixed-integer-optimazition)
     - [any-optimazition](#any-optimazition)
+      - [example-1](#example-1-2)
+      - [example-2](#example-2-2)
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
@@ -550,6 +552,7 @@ object=	2
 ```
 
 ### any-optimazition
+#### example-1
 ```cpp
 #include <anyprog/anyprog.hpp>
 #include <chrono>
@@ -631,6 +634,57 @@ x(1)=	4.74309
 x(2)=	3.82103
 x(3)=	1.37942
 object=	17.014
+```
+#### example-2
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    //https://uk.mathworks.com/help/optim/ug/mixed-integer-linear-programming-basics.html
+    anyprog::real_block obj(8, 1);
+    obj << 350 * 5, 330 * 3, 310 * 4, 280 * 6, 500, 450, 400, 100;
+    anyprog::real_block Aeq(3, 8), beq(3, 1);
+    Aeq << 5, 3, 4, 6, 1, 1, 1, 1,
+        5 * 0.05, 3 * 0.04, 4 * 0.05, 6 * 0.03, 0.08, 0.07, 0.06, 0.03,
+        5 * 0.03, 3 * 0.03, 4 * 0.04, 6 * 0.04, 0.06, 0.07, 0.08, 0.09;
+    beq << 25, 1.25, 1.25;
+    std::vector<anyprog::optimization::range_t> range = { { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 10 }, { 0, 10 }, { 0, 10 }, { 0, 10 } };
+    anyprog::optimization opt(obj, range);
+    opt.set_equation_condition(Aeq, beq);
+    opt.set_filter_function([](anyprog::real_block& x) {
+        x(0, 0) = round(x(0, 0));
+        x(1, 0) = round(x(1, 0));
+        x(2, 0) = round(x(2, 0));
+        x(3, 0) = round(x(3, 0));
+    });
+    auto ret = opt.search();
+    if (opt.is_ok()) {
+        std::cout << "solution:\n"
+                  << ret << "\n";
+        std::cout << "object:\t" << ret.transpose() * obj << "\n";
+    } else {
+        std::cout << "Not found.\n";
+    }
+
+    return 0;
+}
+```
+```txt
+solution:
+       1
+       1
+       0
+       1
+ 7.13349
+0.233014
+0.133493
+     3.5
+object:	8495
+
 ```
 
 ## data fitting
