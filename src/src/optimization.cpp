@@ -6,8 +6,8 @@
 namespace anyprog {
 
 optimization::method optimization::default_local_method = optimization::method::LN_COBYLA;
-bool optimization::enable_auto_eq_objector = true;
-bool optimization::enable_auto_ineq_objector = true;
+bool optimization::enable_auto_eq_objector = false;
+bool optimization::enable_auto_ineq_objector = false;
 bool optimization::enable_default_bound_step = true;
 double optimization::default_bound_step = 10;
 size_t optimization::default_population = 200;
@@ -338,6 +338,7 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
         rng.clear();
         not_changed = 0;
         this->point = global_point;
+        this->ok = !this->history.empty();
         for (size_t i = 0; i < dim; ++i) {
             range_t& p = this->range[i];
             double c = p.second - p.first;
@@ -367,8 +368,6 @@ int optimization::select_nlopt_method(optimization::method m) const
     switch (m) {
     case optimization::method::LN_COBYLA:
         method = NLOPT_LN_COBYLA;
-        optimization::enable_auto_eq_objector = false;
-        optimization::enable_auto_ineq_objector = false;
         break;
     case optimization::method::LN_NEWUOA:
         method = NLOPT_LN_NEWUOA;
@@ -396,7 +395,6 @@ int optimization::select_nlopt_method(optimization::method m) const
         break;
     case optimization::method::LD_MMA:
         method = NLOPT_LD_MMA;
-        optimization::enable_auto_eq_objector = true;
         break;
     case optimization::method::LD_SLSQP:
         method = NLOPT_LD_SLSQP;
@@ -424,13 +422,9 @@ int optimization::select_nlopt_method(optimization::method m) const
         break;
     case optimization::method::GN_ORIG_DIRECT:
         method = NLOPT_GN_ORIG_DIRECT;
-        optimization::enable_auto_eq_objector = true;
-        optimization::enable_auto_ineq_objector = false;
         break;
     case optimization::method::GN_ORIG_DIRECT_L:
         method = NLOPT_GN_ORIG_DIRECT_L;
-        optimization::enable_auto_eq_objector = true;
-        optimization::enable_auto_ineq_objector = false;
         break;
     case optimization::method::GN_MLSL:
         method = NLOPT_GN_MLSL;
@@ -440,8 +434,6 @@ int optimization::select_nlopt_method(optimization::method m) const
         break;
     case optimization::method::GN_ISRES:
         method = NLOPT_GN_ISRES;
-        optimization::enable_auto_eq_objector = false;
-        optimization::enable_auto_ineq_objector = false;
         break;
     case optimization::method::AUGLAG:
         method = NLOPT_AUGLAG;
@@ -463,8 +455,6 @@ int optimization::select_nlopt_method(optimization::method m) const
         break;
     case optimization::method::GN_AGS:
         method = NLOPT_GN_AGS;
-        optimization::enable_auto_eq_objector = true;
-        optimization::enable_auto_ineq_objector = false;
         break;
     default:
         method = NLOPT_LN_COBYLA;
@@ -551,7 +541,7 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     if (this->filter_cb) {
         this->filter_cb(this->point);
     }
-    this->ok = this->ok && this->check(this->point,eps);
+    this->ok = this->ok && this->check(this->point, eps);
     nlopt_destroy(opt);
     nlopt_destroy(opt_loc);
     return this->point;
