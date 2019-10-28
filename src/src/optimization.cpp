@@ -11,6 +11,7 @@ bool optimization::enable_auto_ineq_objector = false;
 bool optimization::enable_default_bound_step = true;
 double optimization::default_bound_step = 10;
 size_t optimization::default_population = 200;
+size_t optimization::max_reloop_iter = 3;
 
 double optimization::instance_fun(unsigned n, const double* x, double* grad, void* my_func_data)
 {
@@ -309,9 +310,11 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
         obj_value = this->cb(this->point);
         global_obj_value = obj_value;
         real_block global_point = this->point;
-        size_t not_changed = 0, global_max_random_iter = 0;
+        size_t not_changed = 0, global_max_random_iter = 0, reloop_iter = 0;
         std::vector<std::shared_ptr<random>> rng;
-        random rg(0 - eps, fabs(s) + eps);
+        random rg(0.0 - eps, fabs(s) + eps);
+        std::vector<range_t> range_bk = this->range;
+    reloop:
         for (size_t i = 0; i < dim; ++i) {
             rng.emplace_back(std::make_shared<random>(this->range[i].first - eps, this->range[i].second + eps));
         }
@@ -340,7 +343,7 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
         this->point = global_point;
         this->ok = !this->history.empty();
         for (size_t i = 0; i < dim; ++i) {
-            range_t& p = this->range[i];
+            range_t& p = range_bk[i];
             double c = p.second - p.first;
             if (c >= eps) {
                 double best = this->point(i, 0);
@@ -357,6 +360,12 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
         if ((not_changed < dim - 1) && ++global_max_random_iter <= max_not_changed) {
             not_changed = 0;
             goto loop;
+        }
+        if (!this->ok && ++reloop_iter <= optimization::max_reloop_iter) {
+            global_max_random_iter = 0;
+            not_changed = 0;
+            range_bk = this->range;
+            goto reloop;
         }
         return this->point;
     }
