@@ -4,6 +4,7 @@ A C++ scientific library for mathematical programming and data fitting
 # feature
 - [anyprog](#anyprog)
 - [feature](#feature)
+- [dependency](#dependency)
 - [usage](#usage)
   - [mathematical programming](#mathematical-programming)
     - [nonlinear-unconstrained-optimization](#nonlinear-unconstrained-optimization)
@@ -23,7 +24,10 @@ A C++ scientific library for mathematical programming and data fitting
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
-  
+
+# dependency
+- nlopt
+
 
 # usage
 `pkg-config --libs --cflags anyprog`
