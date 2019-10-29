@@ -1,7 +1,7 @@
 #include "optimization.hpp"
-#include "nlopt/nlopt.h"
 #include "random.hpp"
 #include <iostream>
+#include <nlopt.h>
 
 namespace anyprog {
 
