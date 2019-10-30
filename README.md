@@ -17,9 +17,11 @@ A C++ scientific library for mathematical programming and data fitting
     - [linear-optimization](#linear-optimization)
     - [quadratic-optimazition](#quadratic-optimazition)
     - [mixed-integer-optimazition](#mixed-integer-optimazition)
-    - [any-optimazition](#any-optimazition)
       - [example-1](#example-1-2)
       - [example-2](#example-2-2)
+    - [any-optimazition](#any-optimazition)
+      - [example-1](#example-1-3)
+      - [example-2](#example-2-3)
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
@@ -478,6 +480,7 @@ object=	-13.75
 ```
 
 ### mixed-integer-optimazition
+#### example-1
 ```cpp
 #include <anyprog/anyprog.hpp>
 #include <chrono>
@@ -552,6 +555,83 @@ x(2)=	1
 x(3)=	0
 object=	2
 
+```
+#### example-2
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+        return pow(x(0) - 1, 2) + pow(x(1) - 1, 2) + pow(x(2) - 1, 2) - log(1 + x(3)) + pow(x(4) - 1, 2) + pow(x(5) - 2, 2) + pow(x(6) - 3, 2);
+    };
+    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return x.sum() - x(3) - 5;
+    });
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return pow(x(2), 2) + pow(x(4), 2) + pow(x(5), 2) + pow(x(6), 2) - 5.5;
+    });
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return x(0) + x(4) - 1.2;
+    });
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return x(1) + x(5) - 1.8;
+    });
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return x(2) + x(6) - 2.5;
+    });
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return x(3) + x(4) - 1.2;
+    });
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return pow(x(1), 2) + pow(x(5), 2) - 1.64;
+    });
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return pow(x(2), 2) + pow(x(6), 2) - 4.25;
+    });
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return pow(x(1), 2) + pow(x(6), 2) - 4.64;
+    });
+
+    anyprog::real_block param(7, 1);
+    param << 1, 1, 1, 1, 1, 1, 1;
+
+    anyprog::optimization opt(obj, param);
+    opt.set_inequation_condition(ineq);
+    opt.set_filter_function([](anyprog::real_block& x) {
+        x(0, 0) = round(x(0, 0));
+        x(1, 0) = round(x(1, 0));
+        x(2, 0) = round(x(2, 0));
+        x(3, 0) = round(x(3, 0));
+    });
+    auto ret = opt.search();
+    if (opt.is_ok()) {
+        std::cout << "golbal solution:\n";
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+        std::cout << "object:\t" << obj(ret) << "\n";
+    } else {
+        std::cout << "Not found.\n";
+    }
+
+    return 0;
+}
+```
+```txt
+golbal solution:
+x(0)=	1
+x(1)=	0
+x(2)=	0
+x(3)=	1
+x(4)=	0.2
+x(5)=	1.28062
+x(6)=	1.95448
+object:	3.55746
 ```
 
 ### any-optimazition
