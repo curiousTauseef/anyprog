@@ -20,11 +20,11 @@ CXX=g++
 FCC=gfortran
 
 CFLAGS+=-O3 -std=c11 -Wall -fPIC 
-CFLAGS+=-Isrc/inc -Isrc/inc/anyprog
-CXXFLAGS+=-O3 -std=c++11 -Wall -fPIC `pkg-config --cflags nlopt`
-CXXFLAGS+=-Isrc/inc -Isrc/inc/anyprog
+CFLAGS+=-Isrc/inc -Isrc/inc/anyprog -Isrc/src/nlopt -Isrc/src/nlopt/util
+CXXFLAGS+=-O3 -std=c++11 -Wall -fPIC 
+CXXFLAGS+=-Isrc/inc -Isrc/inc/anyprog -Isrc/src/nlopt -Isrc/src/nlopt/util
 FCCFLAGS+=-O3 -Wall -fPIC
-LDLIBS+=`pkg-config --libs nlopt`
+LDLIBS+=
 LDFLAGS+=-shared
 
 

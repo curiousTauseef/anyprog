@@ -1,7 +1,7 @@
 #include "optimization.hpp"
+#include "nlopt/nlopt.h"
 #include "random.hpp"
 #include <iostream>
-#include <nlopt.h>
 
 namespace anyprog {
 
@@ -325,9 +325,9 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
             }
             this->point = this->solve(m, eps, max_iter);
             obj_value = this->fval;
-            bool gcheck = this->check(global_point, eps), lcheck = this->check(this->point, eps);
+            bool gcheck = this->check(global_point, eps), lcheck = this->ok;
             bool case1 = !gcheck && lcheck, case2 = lcheck && (global_obj_value - obj_value) >= eps;
-            if (this->ok && (case1 || case2)) {
+            if ((case1 || case2)) {
                 global_point = this->point;
                 global_obj_value = obj_value;
                 not_changed = 0;
