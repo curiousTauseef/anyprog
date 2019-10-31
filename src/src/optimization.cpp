@@ -8,7 +8,7 @@ namespace anyprog {
 optimization::method optimization::default_local_method = optimization::method::LN_COBYLA;
 bool optimization::enable_auto_eq_objector = false;
 bool optimization::enable_auto_ineq_objector = false;
-bool optimization::enable_default_bound_step = true;
+bool optimization::enable_default_bound_step = false;
 double optimization::default_bound_step = 10;
 size_t optimization::default_population = 200;
 size_t optimization::max_reloop_iter = 3;
