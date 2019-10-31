@@ -14,6 +14,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
       - [example-1](#example-1-1)
       - [example-2](#example-2-1)
       - [example-3](#example-3-1)
+      - [example-4](#example-4)
     - [linear-optimization](#linear-optimization)
     - [quadratic-optimazition](#quadratic-optimazition)
     - [mixed-integer-optimazition](#mixed-integer-optimazition)
@@ -394,6 +395,59 @@ x(4)=	-2.4261
 x(5)=	0.286241
 object=	18.4131
 
+```
+#### example-4
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    //https://www.coin-or.org/Ipopt/documentation/node20.html
+    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+        return x(0) * x(3) * (x(0) + x(1) + x(2)) + x(2);
+    };
+    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    ineq.emplace_back([](const anyprog::real_block& x) {
+        return 25 - x.prod();
+    });
+    std::vector<anyprog::optimization::equation_condition_funcation_t> eq;
+    eq.emplace_back([](const anyprog::real_block& x) {
+        size_t dim = x.rows();
+        double sum = 0;
+        for (size_t i = 0; i < dim; ++i) {
+            sum += pow(x(i), 2);
+        }
+        return sum - 40;
+    });
+    std::vector<anyprog::optimization::range_t> range = { { 1, 5 }, { 1, 5 }, { 1, 5 }, { 1, 5 } };
+    anyprog::real_block param(4, 1);
+    param << 1, 5, 5, 1;
+    anyprog::optimization opt(obj, param, range);
+    opt.set_equation_condition(eq).set_inequation_condition(ineq);
+    auto ret = opt.solve();
+    if (opt.is_ok()) {
+        std::cout << "solution:\n";
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+        std::cout << "object:\t" << obj(ret) << "\n";
+    } else {
+        std::cout << "Not found.\n";
+    }
+
+    return 0;
+}
+```
+```txt
+solution:
+x(0)=	1
+x(1)=	4.74303
+x(2)=	3.82112
+x(3)=	1.37941
+object:	17.014
 ```
 
 ### linear-optimization
