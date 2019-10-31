@@ -4,8 +4,8 @@ includedir=${prefix}/include
 libdir=${exec_prefix}/lib
 
 Name: anyprog
-Description: A C++ scientific library for mathematical programming and data fitting
-Version: 0.1.4
+Description: A C++ scientific library for mathematical programming,data fitting and solving nonlinear equations
+Version: 0.1.5
 URL: https://github.com/webcpp/anyprog
 Requires:
 Libs: -L${libdir} -lanyprog -lm

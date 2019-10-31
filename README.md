@@ -1,5 +1,5 @@
 # anyprog
-A C++ scientific library for mathematical programming and data fitting
+A C++ scientific library for mathematical programming,data fitting and solving nonlinear equations
 
 # feature
 - [anyprog](#anyprog)
@@ -25,6 +25,7 @@ A C++ scientific library for mathematical programming and data fitting
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
+  - [solving nonlinear equations](#solving-nonlinear-equations)
 
 
 # usage
@@ -854,3 +855,41 @@ int main(int argc, char** argv)
 -0.207208
 ```
 ![nlfitting](doc/nlfitting.png)
+
+## solving nonlinear equations
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    std::vector<anyprog::equation::funcation_t> eq;
+    eq.emplace_back([](const anyprog::real_block& x){
+        return exp(-exp(x(0)+x(1)))-x(1)*(1+x(0)*x(0));
+    });
+    eq.emplace_back([](const anyprog::real_block&x){
+        return x(0)*cos(x(1))+x(1)*sin(x(0))-0.5;
+    });
+    anyprog::real_block param(2,1);
+    param<<0,0;
+    anyprog::equation solver(eq,param);
+    auto ret = solver.solve();
+    if (solver.is_ok()) {
+        std::cout << "solution:\n";
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+    } else {
+        std::cout << "Not found.\n";
+    }
+
+    return 0;
+}
+```
+```txt
+solution:
+x(0)=	0.444489
+x(1)=	0.139079
+```
