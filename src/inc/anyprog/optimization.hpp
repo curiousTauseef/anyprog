@@ -54,7 +54,15 @@ public:
     };
 
 private:
-    struct help_t {
+    class help_t {
+    public:
+        help_t()
+            : fun(0)
+            , filter(0)
+            , grad(0)
+        {
+        }
+        virtual ~help_t() = default;
         optimization::funcation_t* fun;
         optimization::filter_funcation_t* filter;
         optimization::gradient_function_t* grad;
@@ -68,6 +76,7 @@ private:
     gradient_function_t grad_cb;
     std::vector<equation_condition_funcation_t> eq_fun;
     std::vector<inequation_condition_funcation_t> ineq_fun;
+    std::vector<gradient_function_t> eq_grad_fun, ineq_grad_fun;
     std::vector<range_t> range;
     history_t history;
     bool check(const real_block&, double) const;
@@ -90,6 +99,8 @@ public:
     optimization& set_inequation_condition(const real_block&, const real_block&);
     optimization& set_filter_function(const filter_funcation_t&);
     optimization& set_gradient_function(const gradient_function_t&);
+    optimization& set_equation_gradient_function(const std::vector<gradient_function_t>&);
+    optimization& set_inequation_gradient_function(const std::vector<gradient_function_t>&);
     optimization& set_enable_integer_filter();
     optimization& set_enable_binary_filter();
     optimization& set_solver(optimization::solver_t);
@@ -118,7 +129,7 @@ public:
 
 public:
     static real_block fminunc(const optimization::funcation_t&, const real_block&, double = 1e-5, size_t = 1000);
-    static real_block fminunc(const optimization::funcation_t&,const optimization::gradient_function_t&, const real_block&, double = 1e-5, size_t = 1000);
+    static real_block fminunc(const optimization::funcation_t&, const optimization::gradient_function_t&, const real_block&, double = 1e-5, size_t = 1000);
     static real_block fminbnd(const optimization::funcation_t&, const std::vector<range_t>&, double = 1e-5, size_t = 1000);
 };
 }

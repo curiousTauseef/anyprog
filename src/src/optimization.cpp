@@ -23,7 +23,7 @@ double optimization::instance_fun(unsigned n, const double* x, double* grad, voi
     if (*help->filter) {
         (*help->filter)(ret);
     }
-    if (grad && *help->grad) {
+    if (grad && help->grad) {
         real_block tmp = (*help->grad)(ret);
         for (size_t i = 0; i < n; ++i) {
             grad[i] = tmp(i, 0);
@@ -43,6 +43,12 @@ double optimization::instance_eq_fun(unsigned n, const double* x, double* grad, 
     if (*help->filter) {
         (*help->filter)(ret);
     }
+    if (grad && help->grad) {
+        real_block tmp = (*help->grad)(ret);
+        for (size_t i = 0; i < n; ++i) {
+            grad[i] = tmp(i, 0);
+        }
+    }
     return (*help->fun)(ret);
 }
 
@@ -55,6 +61,12 @@ double optimization::instance_ineq_fun(unsigned n, const double* x, double* grad
     optimization::help_t* help = (optimization::help_t*)(my_func_data);
     if (*help->filter) {
         (*help->filter)(ret);
+    }
+    if (grad && help->grad) {
+        real_block tmp = (*help->grad)(ret);
+        for (size_t i = 0; i < n; ++i) {
+            grad[i] = tmp(i, 0);
+        }
     }
     return (*help->fun)(ret);
 }
@@ -86,6 +98,8 @@ optimization::optimization(const funcation_t& fun, const real_block& p)
     , grad_cb()
     , eq_fun()
     , ineq_fun()
+    , eq_grad_fun()
+    , ineq_grad_fun()
     , range()
     , history()
 {
@@ -296,6 +310,17 @@ optimization& optimization::set_filter_function(const optimization::filter_funca
 optimization& optimization::set_gradient_function(const optimization::gradient_function_t& cb)
 {
     this->grad_cb = cb;
+    return *this;
+}
+
+optimization& optimization::set_equation_gradient_function(const std::vector<optimization::gradient_function_t>& eq_grad)
+{
+    this->eq_grad_fun = eq_grad;
+    return *this;
+}
+optimization& optimization::set_inequation_gradient_function(const std::vector<optimization::gradient_function_t>& ineq_grad)
+{
+    this->ineq_grad_fun = ineq_grad;
     return *this;
 }
 
@@ -520,6 +545,9 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
         help_t h;
         h.filter = &this->filter_cb;
         h.fun = &this->eq_fun[i];
+        if (this->eq_grad_fun.size() == this->eq_fun.size()) {
+            h.grad = &this->eq_grad_fun[i];
+        }
         eq_help.emplace_back(h);
     }
     for (size_t i = 0; i < eq_help.size(); ++i) {
@@ -530,6 +558,9 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
         help_t h;
         h.filter = &this->filter_cb;
         h.fun = &this->ineq_fun[i];
+        if (this->ineq_grad_fun.size() == this->ineq_fun.size()) {
+            h.grad = &this->ineq_grad_fun[i];
+        }
         ineq_help.emplace_back(h);
     }
     for (size_t i = 0; i < ineq_help.size(); ++i) {
