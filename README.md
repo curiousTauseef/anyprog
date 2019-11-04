@@ -20,6 +20,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
     - [mixed-integer-optimazition](#mixed-integer-optimazition)
       - [example-1](#example-1-2)
       - [example-2](#example-2-2)
+      - [example-3](#example-3-2)
     - [any-optimazition](#any-optimazition)
       - [example-1](#example-1-3)
       - [example-2](#example-2-3)
@@ -690,6 +691,95 @@ x(5)=	1.28062
 x(6)=	1.95448
 object:	3.55746
 ```
+#### example-3
+![mixed_integer_programming.png](doc/mixed_integer_programming.png)
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    size_t dim = 4;
+    anyprog::real_block obj(dim, 1);
+    obj << -1, -1, -2, 2;
+    anyprog::real_block Aeq(1, dim), beq(1, 1), A(3, dim), b(3, 1);
+    Aeq << 1, 1, 1, 1;
+    beq << 10;
+    A << 1, 0, 2, 0, 0, 2, -8, 0, 0, -1, 2, -1;
+    b << 700, 0, -1;
+
+    std::vector<anyprog::optimization::range_t> range;
+    for (size_t i = 0; i < dim; ++i) {
+        range.push_back({ 0, 10 });
+    }
+    anyprog::optimization opt(obj, range);
+    opt.set_equation_condition(Aeq, beq).set_inequation_condition(A, b);
+    opt.set_enable_integer_filter();
+    anyprog::real_block ret = opt.search();
+    if (opt.is_ok()) {
+        std::cout << "global solution:\n";
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+        std::cout << "object:\t" << ret.transpose() * obj << "\n\n";
+
+        auto history = opt.get_history();
+        std::cout << "search history:\n";
+        for (auto& iter : history) {
+            for (size_t i = 0; i < iter.second.rows(); ++i) {
+                std::cout << "x(" << i << ")=\t" << iter.second(i, 0) << "\n";
+            }
+            std::cout << "object=\t" << iter.first << "\n\n";
+        }
+    } else {
+        std::cout << "Not found.\n";
+    }
+
+    return 0;
+}
+```
+```txt
+global solution:
+x(0)=	0
+x(1)=	7
+x(2)=	3
+x(3)=	0
+object:	-13
+
+search history:
+x(0)=	4
+x(1)=	3
+x(2)=	1
+x(3)=	2
+object=	-5
+
+x(0)=	0
+x(1)=	6
+x(2)=	3
+x(3)=	1
+object=	-10
+
+x(0)=	5
+x(1)=	4
+x(2)=	1
+x(3)=	0
+object=	-11
+
+x(0)=	3
+x(1)=	5
+x(2)=	2
+x(3)=	0
+object=	-12
+
+x(0)=	0
+x(1)=	7
+x(2)=	3
+x(3)=	0
+object=	-13
+```
+
 
 ### any-optimazition
 #### example-1
