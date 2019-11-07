@@ -24,6 +24,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
     - [any-optimazition](#any-optimazition)
       - [example-1](#example-1-3)
       - [example-2](#example-2-3)
+      - [example-3](#example-3-3)
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
@@ -915,6 +916,41 @@ solution:
      3.5
 object:	8495
 
+```
+#### example-3
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    //The Assignment Problem
+    //https://personal.utdallas.edu/~scniu/OPRE-6201/documents/TP5-Assignment.pdf
+    anyprog::real_block c(4, 4);
+    c << 13, 4, 7, 6,
+        1, 11, 5, 4,
+        6, 7, 2, 8,
+        1, 3, 5, 9;
+    bool ok = false;
+    double fval = 0;
+    auto ret = anyprog::optimization::assignment(c, ok, fval);
+    if (ok) {
+        std::cout << fval << "\n";
+        std::cout << ret << "\n";
+    } else {
+        std::cout << "Not Found\n";
+    }
+    return 0;
+}
+```
+```txt
+11
+0 1 0 0
+0 0 0 1
+0 0 1 0
+1 0 0 0
 ```
 
 ## data fitting
