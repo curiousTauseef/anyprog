@@ -926,13 +926,12 @@ object:	8495
 
 int main(int argc, char** argv)
 {
-    //The Assignment Problem
-    //https://personal.utdallas.edu/~scniu/OPRE-6201/documents/TP5-Assignment.pdf
+    //https://www.geeksforgeeks.org/job-assignment-problem-using-branch-and-bound/
     anyprog::real_block c(4, 4);
-    c << 13, 4, 7, 6,
-        1, 11, 5, 4,
-        6, 7, 2, 8,
-        1, 3, 5, 9;
+    c << 9, 2, 7, 8,
+        6, 4, 3, 7,
+        5, 8, 1, 8,
+        7, 6, 9, 4;
     bool ok = false;
     double fval = 0;
     auto ret = anyprog::optimization::assignment(c, ok, fval);
@@ -946,11 +945,11 @@ int main(int argc, char** argv)
 }
 ```
 ```txt
-11
+13
 0 1 0 0
-0 0 0 1
-0 0 1 0
 1 0 0 0
+0 0 1 0
+0 0 0 1
 ```
 
 ## data fitting
