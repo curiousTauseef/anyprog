@@ -88,7 +88,7 @@ real_block optimization::fminbnd(const optimization::funcation_t& obj, const std
     return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
 }
 
-real_block optimization::assignment(const real_block& c, bool& ok, double& fval, size_t max_random_iter, size_t max_not_changed, double eps)
+real_block optimization::assignment(const real_block& c, bool& ok, double& fval, size_t max_random_iter, size_t max_not_changed, double s, optimization::method m, double eps, size_t max_iter)
 {
     size_t row = c.rows(), col = c.cols();
     anyprog::real_block obj(row * col, 1);
@@ -122,7 +122,7 @@ real_block optimization::assignment(const real_block& c, bool& ok, double& fval,
     anyprog::optimization opt(obj, range);
     opt.set_equation_condition(eq);
 
-    anyprog::real_block ret = opt.search(max_random_iter, max_not_changed, eps);
+    anyprog::real_block ret = opt.search(max_random_iter, max_not_changed, s, m, eps, max_iter);
     ok = opt.is_ok();
     if (ok) {
         ret = ret.unaryExpr([](double v) {
