@@ -679,4 +679,42 @@ optimization& optimization::set_enable_binary_filter()
     };
     return *this;
 }
+
+optimization::tsp::tsp(const real_block& c)
+    : bk(c)
+    , data(c)
+    , max_value(c.maxCoeff())
+    , sum(0)
+    , path()
+{
+    this->find(0);
+}
+
+void optimization::tsp::find(size_t i)
+{
+    size_t dim = this->data.rows();
+    if (this->path.size() < dim) {
+        this->path.push_back(i);
+        Eigen::MatrixXd::Index min_index;
+        this->data.row(i).minCoeff(&min_index);
+        this->sum += this->bk(i, min_index);
+        for (size_t j = 0; j < dim; ++j) {
+            if (this->path.end() != std::find(this->path.begin(), this->path.end(), j)) {
+                this->data(min_index, j) = this->max_value;
+            }
+        }
+        this->find(min_index);
+    } else {
+        this->path.push_back(0);
+    }
+}
+
+const std::vector<size_t>& optimization::tsp::solve() const
+{
+    return this->path;
+}
+double optimization::tsp::obj() const
+{
+    return this->sum;
+}
 }

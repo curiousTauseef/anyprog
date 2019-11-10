@@ -25,6 +25,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
       - [example-1](#example-1-3)
       - [example-2](#example-2-3)
       - [example-3](#example-3-3)
+      - [example-4](#example-4-1)
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
@@ -950,6 +951,45 @@ int main(int argc, char** argv)
 1 0 0 0
 0 0 1 0
 0 0 0 1
+```
+#### example-4
+![tsp.png](doc/tsp.png)
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+
+int main(int argc, char** argv)
+{
+    //Travelling Salesman Problem
+    anyprog::real_block c(4, 4);
+    double a = 10000;
+    c << a, 500, 600, 100,
+        100, a, 800, 500,
+        1000, 200, a, 2000,
+        400, 400, 100, a;
+    std::cout << c << "\n\n";
+    anyprog::optimization::tsp tsp(c);
+    auto path = tsp.solve();
+    std::cout << "path=|";
+    for (auto& i : path) {
+        std::cout << i << "|";
+    }
+    std::cout << "\ndistance="
+              << tsp.obj() << "\n";
+    return 0;
+}
+```
+```txt
+10000   500   600   100
+  100 10000   800   500
+ 1000   200 10000  2000
+  400   400   100 10000
+
+path=|0|3|2|1|0|
+distance=500
 ```
 
 ## data fitting
