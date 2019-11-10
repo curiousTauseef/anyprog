@@ -131,7 +131,7 @@ public:
     static real_block fminunc(const optimization::funcation_t&, const real_block&, double = 1e-5, size_t = 1000);
     static real_block fminunc(const optimization::funcation_t&, const optimization::gradient_function_t&, const real_block&, double = 1e-5, size_t = 1000);
     static real_block fminbnd(const optimization::funcation_t&, const std::vector<range_t>&, double = 1e-5, size_t = 1000);
-    static real_block assignment(const real_block& c, bool& ok, double& fval, size_t = 20, size_t = 5, double = 0.328, optimization::method = optimization::method::LN_COBYLA, double = 1e-5, size_t = 1000)
+    static real_block assignment(const real_block& c, bool& ok, double& fval, size_t = 20, size_t = 5, double = 0.328, optimization::method = optimization::method::LN_COBYLA, double = 1e-5, size_t = 1000);
 
     class tsp {
     private:
@@ -147,6 +147,9 @@ public:
         virtual ~tsp() = default;
         const std::vector<size_t>& solve() const;
         double obj() const;
+
+    public:
+        static real_block gps_distance(const std::vector<std::pair<double, double>>&, double inf = 1e10, double u = 1e3);
     };
 };
 }
