@@ -4,6 +4,8 @@
 
 namespace anyprog {
 
+// https://github.com/janantala/GPS-distance
+// http://www.movable-type.co.uk/scripts/latlong-vincenty.html
 double to_radians(double degree)
 {
     double r = degree * M_PI / 180;
