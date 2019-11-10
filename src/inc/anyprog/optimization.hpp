@@ -135,6 +135,7 @@ public:
 
     class tsp {
     private:
+        size_t start;
         const real_block& bk;
         real_block data;
         double max_value, sum;
@@ -143,7 +144,7 @@ public:
 
     public:
         tsp() = delete;
-        tsp(const real_block&);
+        tsp(const real_block&, size_t = 0);
         virtual ~tsp() = default;
         const std::vector<size_t>& solve() const;
         double obj() const;

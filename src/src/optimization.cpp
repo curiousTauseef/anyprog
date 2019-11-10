@@ -681,14 +681,15 @@ optimization& optimization::set_enable_binary_filter()
     return *this;
 }
 
-optimization::tsp::tsp(const real_block& c)
-    : bk(c)
+optimization::tsp::tsp(const real_block& c, size_t start)
+    : start(start)
+    , bk(c)
     , data(c)
     , max_value(c.maxCoeff())
     , sum(0)
     , path()
 {
-    this->find(0);
+    this->find(this->start);
 }
 
 void optimization::tsp::find(size_t i)
@@ -706,7 +707,7 @@ void optimization::tsp::find(size_t i)
         }
         this->find(min_index);
     } else {
-        this->path.push_back(0);
+        this->path.push_back(this->start);
     }
 }
 
