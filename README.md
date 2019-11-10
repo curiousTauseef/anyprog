@@ -965,11 +965,11 @@ int main(int argc, char** argv)
 {
     //Travelling Salesman Problem
     anyprog::real_block c(4, 4);
-    double a = 10000;
-    c << a, 500, 600, 100,
-        100, a, 800, 500,
-        1000, 200, a, 2000,
-        400, 400, 100, a;
+    double inf = 10000;
+    c << inf, 500, 600, 100,
+        100, inf, 800, 500,
+        1000, 200, inf, 2000,
+        400, 400, 100, inf;
     std::cout << c << "\n\n";
     anyprog::optimization::tsp tsp(c);
     auto path = tsp.solve();
