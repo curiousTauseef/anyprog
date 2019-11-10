@@ -1076,6 +1076,8 @@ int main(int argc, char** argv)
         { 114.165460, 22.275340 },
         { 113.549130, 22.198750 }
     };
+    // https://github.com/janantala/GPS-distance
+    // http://www.movable-type.co.uk/scripts/latlong-vincenty.html
     auto dis = anyprog::optimization::tsp::gps_distance(gps);
     anyprog::optimization::tsp tsp(dis);
     auto path = tsp.solve();
