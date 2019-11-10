@@ -994,6 +994,7 @@ distance=500
 ```
 
 #### example-5
+![tsp2.png](doc/tsp2.png)
 ```cpp
 #include <anyprog/anyprog.hpp>
 #include <chrono>
