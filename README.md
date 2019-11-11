@@ -1044,15 +1044,12 @@ int main(int argc, char** argv)
     for (auto& i : city_and_gps) {
         gps.push_back(i.second);
     }
-    // https://github.com/janantala/GPS-distance
-    // http://www.movable-type.co.uk/scripts/latlong-vincenty.html
-    anyprog::real_block dis = anyprog::optimization::tsp::gps_distance(gps);
+    anyprog::real_block dis = anyprog::optimization::tsp::gps_euclidean_distance(gps);
     anyprog::optimization::tsp tsp(dis);
     auto path = tsp.solve();
     std::cout << "path=|";
     for (size_t i = 0; i < path.size(); ++i) {
         std::cout << city_and_gps[path[i]].first << "|";
-        output << i << "," << path[i] << "," << gps[path[i]].first << "," << gps[path[i]].second << "\n";
     }
     std::cout << "\ndistance="
               << tsp.obj() << " km\n";
@@ -1060,9 +1057,8 @@ int main(int argc, char** argv)
 }
 ```
 ```txt
-path=|香港|澳门|广州市|长沙市|武汉市|南昌市|合肥市|南京市|杭州市|上海市|台北市|福州市|济南市|天津市|北京市|石家庄市|郑州市|太原市|呼和浩特市|西安市|重庆市|贵阳市|南宁市|海口市|成都市|兰州市|西宁市|昆明市|银川市|拉萨市|沈阳市|长春市|哈尔滨市|乌鲁木齐市|香港|
-distance=45336.9 km
-
+path=|香港|澳门|广州市|海口市|南宁市|贵阳市|重庆市|成都市|兰州市|西宁市|银川市|西安市|郑州市|太原市|石家庄市|北京市|天津市|济南市|合肥市|南京市|杭州市|上海市|福州市|台北市|南昌市|武汉市|长沙市|昆明市|拉萨市|乌鲁木齐市|呼和浩特市|沈阳市|长春市|哈尔滨市|香港|
+distance=188.344
 ```
 
 ## data fitting

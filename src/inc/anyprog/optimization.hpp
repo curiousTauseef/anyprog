@@ -151,6 +151,7 @@ public:
 
     public:
         static real_block gps_distance(const std::vector<std::pair<double, double>>&, double inf = 1e10, double u = 1e3);
+        static real_block gps_euclidean_distance(const std::vector<std::pair<double, double>>&, double inf = 1e10, double u = 1);
     };
 };
 }

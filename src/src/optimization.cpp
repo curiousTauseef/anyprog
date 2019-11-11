@@ -735,4 +735,19 @@ real_block optimization::tsp::gps_distance(const std::vector<std::pair<double, d
     }
     return dis;
 }
+real_block optimization::tsp::gps_euclidean_distance(const std::vector<std::pair<double, double>>& gps, double inf, double u)
+{
+    size_t dim = gps.size();
+    anyprog::real_block dis(dim, dim);
+    for (size_t i = 0; i < dim; ++i) {
+        for (size_t j = 0; j < dim; ++j) {
+            if (i == j) {
+                dis(i, j) = inf;
+            } else {
+                dis(i, j) = sqrt(pow(gps[i].first - gps[j].first, 2) + pow(gps[i].second - gps[j].second, 2)) / u;
+            }
+        }
+    }
+    return dis;
+}
 }
