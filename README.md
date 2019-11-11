@@ -28,7 +28,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
       - [example-4](#example-4-1)
       - [example-5](#example-5)
       - [example-6](#example-6)
-      - [example-6](#example-6-1)
+      - [example-7](#example-7)
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
@@ -1466,7 +1466,7 @@ path=|香港特别行政区|深圳市|东莞市|珠海市|澳门特别行政区|
 distance=63837.6 km
 
 ```
-#### example-6
+#### example-7
 ```cpp
 #include <anyprog/anyprog.hpp>
 #include <chrono>
