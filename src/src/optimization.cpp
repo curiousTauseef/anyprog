@@ -89,54 +89,6 @@ real_block optimization::fminbnd(const optimization::funcation_t& obj, const std
     return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
 }
 
-real_block optimization::assignment(const real_block& c, bool& ok, double& fval, size_t max_random_iter, size_t max_not_changed, double s, optimization::method m, double eps, size_t max_iter)
-{
-    size_t row = c.rows(), col = c.cols();
-    anyprog::real_block obj(row * col, 1);
-    for (size_t i = 0, j = 0; i < col; ++i) {
-        obj.block(j, 0, col, 1) = c.col(i);
-        j += col;
-    }
-    std::vector<anyprog::optimization::equation_condition_funcation_t> eq;
-    for (size_t i = 0; i < row; ++i) {
-        eq.emplace_back([row, i](const anyprog::real_block& x) {
-            double sum = 0;
-            for (size_t k = 0; k < row; ++k) {
-                sum += x(i * row + k, 0);
-            }
-            return sum - 1.0;
-        });
-    }
-    for (size_t i = 0; i < col; ++i) {
-        eq.emplace_back([col, i](const anyprog::real_block& x) {
-            double sum = 0;
-            for (size_t k = 0; k < col; ++k) {
-                sum += x(k * col + i, 0);
-            }
-            return sum - 1.0;
-        });
-    }
-    std::vector<anyprog::optimization::range_t> range;
-    for (size_t i = 0; i < obj.rows(); ++i) {
-        range.push_back({ 0, 1 });
-    }
-    anyprog::optimization opt(obj, range);
-    opt.set_equation_condition(eq);
-
-    anyprog::real_block ret = opt.search(max_random_iter, max_not_changed, s, m, eps, max_iter);
-    ok = opt.is_ok();
-    if (ok) {
-        ret = ret.unaryExpr([](double v) {
-            return round(v);
-        });
-        ok = opt.check(ret, eps);
-        fval = (obj.transpose() * ret)(0, 0);
-        ret = anyprog::block::reshape(ret, row, col);
-    }
-
-    return ret;
-}
-
 optimization::optimization(const funcation_t& fun, const real_block& p)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
@@ -681,14 +633,65 @@ optimization& optimization::set_enable_binary_filter()
     return *this;
 }
 
-optimization::tsp::tsp(const real_block& c, size_t start)
-    : start(start)
-    , bk(c)
+optimization::assignment::assignment(const anyprog::real_block& c, double inf)
+    : bk(c)
     , data(c)
-    , max_value(c.maxCoeff())
+    , max_value(inf)
     , sum(0)
     , path()
 {
+    double best_value = this->max_value;
+    std::vector<std::pair<size_t, size_t>> best_path;
+    for (size_t i = 0; i < this->bk.rows(); ++i) {
+        this->find(i);
+        if (this->sum < best_value) {
+            best_value = this->sum;
+            best_path = this->path;
+        }
+        this->sum = 0;
+        this->data = this->bk;
+        this->path.clear();
+    }
+    this->path = best_path;
+    this->sum = best_value;
+}
+
+void optimization::assignment::find(size_t i)
+{
+    size_t dim = this->data.rows();
+    if (this->path.size() < dim) {
+        Eigen::MatrixXd::Index min_index;
+        this->data.row(i).minCoeff(&min_index);
+        this->sum += this->bk(i, min_index);
+        this->path.push_back({ i, min_index });
+        size_t next = (i + 1) % dim;
+        for (size_t j = 0; j < dim; ++j) {
+            this->data(j, min_index) = this->max_value;
+        }
+        this->find(next);
+    }
+}
+
+const std::vector<std::pair<size_t, size_t>>& optimization::assignment::solve() const
+{
+    return this->path;
+}
+double optimization::assignment::obj() const
+{
+    return this->sum;
+}
+
+optimization::tsp::tsp(const real_block& c, size_t start, double inf)
+    : start(start)
+    , bk(c)
+    , data(c)
+    , max_value(inf)
+    , sum(0)
+    , path()
+{
+    for (size_t i = 0; i < this->data.rows(); ++i) {
+        this->data(i, i) = this->max_value;
+    }
     this->find(this->start);
 }
 

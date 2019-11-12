@@ -131,7 +131,22 @@ public:
     static real_block fminunc(const optimization::funcation_t&, const real_block&, double = 1e-5, size_t = 1000);
     static real_block fminunc(const optimization::funcation_t&, const optimization::gradient_function_t&, const real_block&, double = 1e-5, size_t = 1000);
     static real_block fminbnd(const optimization::funcation_t&, const std::vector<range_t>&, double = 1e-5, size_t = 1000);
-    static real_block assignment(const real_block& c, bool& ok, double& fval, size_t = 20, size_t = 5, double = 0.328, optimization::method = optimization::method::LN_COBYLA, double = 1e-5, size_t = 1000);
+
+    class assignment {
+    private:
+        const real_block& bk;
+        real_block data;
+        double max_value, sum;
+        std::vector<std::pair<size_t, size_t>> path;
+        void find(size_t i);
+
+    public:
+        assignment() = delete;
+        assignment(const real_block& c, double inf = 1e10);
+        virtual ~assignment() = default;
+        const std::vector<std::pair<size_t, size_t>>& solve() const;
+        double obj() const;
+    };
 
     class tsp {
     private:
@@ -144,7 +159,7 @@ public:
 
     public:
         tsp() = delete;
-        tsp(const real_block&, size_t = 0);
+        tsp(const real_block&, size_t = 0, double inf = 1e10);
         virtual ~tsp() = default;
         const std::vector<size_t>& solve() const;
         double obj() const;
