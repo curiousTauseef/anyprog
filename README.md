@@ -939,6 +939,7 @@ int main(int argc, char** argv)
     anyprog::optimization::assignment assignment(c);
     auto path = assignment.solve();
     anyprog::real_block s(4, 4);
+    s.fill(0);
     for (auto& i : path) {
         s(i.first, i.second) = 1;
     }
