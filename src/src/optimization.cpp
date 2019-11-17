@@ -72,24 +72,24 @@ double optimization::instance_ineq_fun(unsigned n, const double* x, double* grad
     return (*help->fun)(ret);
 }
 
-real_block optimization::fminunc(const optimization::funcation_t& obj, const real_block& p, double eps, size_t max_iter)
+real_block optimization::fminunc(const optimization::function_t& obj, const real_block& p, double eps, size_t max_iter)
 {
     optimization opt(obj, p);
     return opt.solve(optimization::method::LN_NEWUOA, eps, max_iter);
 }
-real_block optimization::fminunc(const optimization::funcation_t& obj, const optimization::gradient_function_t& grad, const real_block& p, double eps, size_t max_iter)
+real_block optimization::fminunc(const optimization::function_t& obj, const optimization::gradient_function_t& grad, const real_block& p, double eps, size_t max_iter)
 {
     optimization opt(obj, p);
     opt.set_gradient_function(grad);
     return opt.solve(optimization::method::LD_LBFGS, eps, max_iter);
 }
-real_block optimization::fminbnd(const optimization::funcation_t& obj, const std::vector<range_t>& range, double eps, size_t max_iter)
+real_block optimization::fminbnd(const optimization::function_t& obj, const std::vector<range_t>& range, double eps, size_t max_iter)
 {
     optimization opt(obj, range);
     return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
 }
 
-optimization::optimization(const funcation_t& fun, const real_block& p)
+optimization::optimization(const function_t& fun, const real_block& p)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
     , ok(false)
@@ -112,7 +112,7 @@ optimization::optimization(const funcation_t& fun, const real_block& p)
     }
 }
 
-optimization::optimization(const funcation_t& fun, const real_block& p, const std::vector<optimization::range_t>& range)
+optimization::optimization(const function_t& fun, const real_block& p, const std::vector<optimization::range_t>& range)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
     , ok(false)
@@ -127,7 +127,7 @@ optimization::optimization(const funcation_t& fun, const real_block& p, const st
 {
 }
 
-optimization::optimization(const funcation_t& fun, const std::vector<optimization::range_t>& range)
+optimization::optimization(const function_t& fun, const std::vector<optimization::range_t>& range)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)
     , ok(false)
@@ -223,12 +223,12 @@ optimization::optimization(const real_block& v, const real_block& p, const std::
     };
 }
 
-optimization& optimization::set_equation_condition(const std::vector<equation_condition_funcation_t>& eq_cond)
+optimization& optimization::set_equation_condition(const std::vector<equation_condition_function_t>& eq_cond)
 {
     this->eq_fun = eq_cond;
     return *this;
 }
-optimization& optimization::set_inequation_condition(const std::vector<inequation_condition_funcation_t>& ineq_cond)
+optimization& optimization::set_inequation_condition(const std::vector<inequation_condition_function_t>& ineq_cond)
 {
     this->ineq_fun = ineq_cond;
     return *this;
@@ -302,7 +302,7 @@ bool optimization::check(const real_block& p, double eps) const
     return eq_check && ineq_check;
 }
 
-optimization& optimization::set_filter_function(const optimization::filter_funcation_t& cb)
+optimization& optimization::set_filter_function(const optimization::filter_function_t& cb)
 {
     this->filter_cb = cb;
     return *this;
@@ -508,7 +508,7 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     help_t obj;
     obj.filter = &this->filter_cb;
     obj.grad = &this->grad_cb;
-    funcation_t auto_obj = [&](const real_block& x) {
+    function_t auto_obj = [&](const real_block& x) {
         double sum = 0.0;
         if (optimization::enable_auto_eq_objector) {
             for (auto& i : this->eq_fun) {
@@ -723,7 +723,7 @@ double optimization::tsp::obj() const
     return this->sum;
 }
 
-real_block optimization::tsp::gps_distance(const std::vector<std::pair<double, double>>& gps, double inf, double u)
+real_block optimization::tsp::distance(const std::vector<optimization::tsp::point2d_t>& gps, const optimization::tsp::point2d_distance_function_t& f, double inf)
 {
     size_t dim = gps.size();
     anyprog::real_block dis(dim, dim);
@@ -732,22 +732,7 @@ real_block optimization::tsp::gps_distance(const std::vector<std::pair<double, d
             if (i == j) {
                 dis(i, j) = inf;
             } else {
-                dis(i, j) = anyprog::gps_distance(gps[i].first, gps[i].second, gps[j].first, gps[j].second, u);
-            }
-        }
-    }
-    return dis;
-}
-real_block optimization::tsp::gps_euclidean_distance(const std::vector<std::pair<double, double>>& gps, double inf, double u)
-{
-    size_t dim = gps.size();
-    anyprog::real_block dis(dim, dim);
-    for (size_t i = 0; i < dim; ++i) {
-        for (size_t j = 0; j < dim; ++j) {
-            if (i == j) {
-                dis(i, j) = inf;
-            } else {
-                dis(i, j) = sqrt(pow(gps[i].first - gps[j].first, 2) + pow(gps[i].second - gps[j].second, 2)) / u;
+                dis(i, j) = f(gps[i], gps[j]);
             }
         }
     }

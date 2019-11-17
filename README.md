@@ -52,7 +52,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
 
 int main(int argc, char** argv)
 {
-    auto output = [](const anyprog::real_block& ret, const anyprog::optimization::funcation_t& obj) {
+    auto output = [](const anyprog::real_block& ret, const anyprog::optimization::function_t& obj) {
         std::cout << "solution:\n";
         for (size_t i = 0; i < ret.rows(); ++i) {
             std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
         std::cout << "object=\t" << obj(ret) << "\n\n";
     };
 
-    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return 100 * pow(x(1, 0) - pow(x(0, 0), 2), 2) + pow(1 - x(0, 0), 2);
     };
 
@@ -111,7 +111,7 @@ object=	3.56293e-17
 
 int main(int argc, char** argv)
 {
-    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return 100 * pow(x(1, 0) - pow(x(0, 0), 2), 2) + pow(1 - x(0, 0), 2);
     };
     std::vector<anyprog::optimization::range_t> range = { { -10, 10 }, { -10, 10 } };
@@ -181,7 +181,7 @@ object=	6.45722e-06
 
 int main(int argc, char** argv)
 {
-    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return x(0, 0) * sin(x(0, 0)) * cos(2.0 * x(0, 0)) - 2.0 * x(0, 0) * sin(3.0 * x(0, 0));
     };
 
@@ -232,16 +232,16 @@ object=	-34.0963
 
 int main(int argc, char** argv)
 {
-    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return -log(x(0)) - log(x(1));
     };
 
-    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    std::vector<anyprog::optimization::inequation_condition_function_t> ineq;
     ineq.emplace_back([&](const anyprog::real_block& x) {
         return x(0) - x(1);
     });
 
-    std::vector<anyprog::optimization::equation_condition_funcation_t> eq;
+    std::vector<anyprog::optimization::equation_condition_function_t> eq;
     eq.emplace_back([&](const anyprog::real_block& x) {
         return x(0) + 2 * x(1) - 5;
     });
@@ -278,11 +278,11 @@ object=	-1.02165
 
 int main(int argc, char** argv)
 {
-    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return pow(1 - x(0), 2) + 100 * pow(x(1) - pow(x(0), 2), 2);
     };
 
-    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    std::vector<anyprog::optimization::inequation_condition_function_t> ineq;
     ineq.emplace_back([&](const anyprog::real_block& x) {
         return pow(x(0) - 1. / 3., 2) + pow(x(1) - 1. / 3., 2) - pow(1. / 3., 2);
     });
@@ -326,10 +326,10 @@ object=	0.25
 int main(int argc, char** argv)
 {
     size_t dim = 6;
-    anyprog::optimization::funcation_t obj = [&](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [&](const anyprog::real_block& x) {
         return sqrt(pow(x(0) - x(1), 2) + pow(x(3) - x(4), 2)) + sqrt(pow(x(0) - x(2), 2) + pow(x(3) - x(5), 2)) + sqrt(pow(x(2) - x(1), 2) + pow(x(5) - x(4), 2));
     };
-    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    std::vector<anyprog::optimization::inequation_condition_function_t> ineq;
     ineq.emplace_back([&](const anyprog::real_block& x) {
         return pow(x(0) - 5, 2) + pow(x(3) - 4, 2) - 4;
     });
@@ -412,14 +412,14 @@ object=	18.4131
 int main(int argc, char** argv)
 {
     //https://www.coin-or.org/Ipopt/documentation/node20.html
-    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return x(0) * x(3) * (x(0) + x(1) + x(2)) + x(2);
     };
-    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    std::vector<anyprog::optimization::inequation_condition_function_t> ineq;
     ineq.emplace_back([](const anyprog::real_block& x) {
         return 25 - x.prod();
     });
-    std::vector<anyprog::optimization::equation_condition_funcation_t> eq;
+    std::vector<anyprog::optimization::equation_condition_function_t> eq;
     eq.emplace_back([](const anyprog::real_block& x) {
         size_t dim = x.rows();
         double sum = 0;
@@ -509,7 +509,7 @@ int main(int argc, char** argv)
     anyprog::real_block c(1, 2);
     c << -1, -10;
 
-    anyprog::optimization::funcation_t obj = [&](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [&](const anyprog::real_block& x) {
         anyprog::real_block ret = 0.5 * (x.transpose() * h * x) + c * x;
         return ret(0, 0);
     };
@@ -628,10 +628,10 @@ object=	2
 
 int main(int argc, char** argv)
 {
-    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return pow(x(0) - 1, 2) + pow(x(1) - 1, 2) + pow(x(2) - 1, 2) - log(1 + x(3)) + pow(x(4) - 1, 2) + pow(x(5) - 2, 2) + pow(x(6) - 3, 2);
     };
-    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    std::vector<anyprog::optimization::inequation_condition_function_t> ineq;
     ineq.emplace_back([](const anyprog::real_block& x) {
         return x.sum() - x(3) - 5;
     });
@@ -796,11 +796,11 @@ object=	-13
 
 int main(int argc, char** argv)
 {
-    anyprog::optimization::funcation_t obj = [](const anyprog::real_block& x) {
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return x(0) * x(3) * (x(0) + x(1) + x(2)) + x(2);
     };
 
-    std::vector<anyprog::optimization::equation_condition_funcation_t> eq;
+    std::vector<anyprog::optimization::equation_condition_function_t> eq;
     eq.emplace_back([](const anyprog::real_block& x) {
         double sum = 0;
         for (size_t i = 0; i < 4; ++i) {
@@ -809,7 +809,7 @@ int main(int argc, char** argv)
         return sum - 40;
     });
 
-    std::vector<anyprog::optimization::inequation_condition_funcation_t> ineq;
+    std::vector<anyprog::optimization::inequation_condition_function_t> ineq;
     ineq.emplace_back([](const anyprog::real_block& x) {
         return 25 - x(0) * x(1) * x(2) * x(3);
     });
@@ -1572,7 +1572,7 @@ int main(int argc, char** argv)
     param(0, 0) = 1;
     param(1, 0) = 1;
     param(2, 0) = -0.1;
-    std::vector<anyprog::fit::funcation_t> fun;
+    std::vector<anyprog::fit::function_t> fun;
     fun.emplace_back([](const anyprog::real_block& x, const anyprog::real_block& p) {
         return (cos(p(1, 0) * x(0, 0)) * pow(M_E, p(2, 0) * x(0, 0))) / p(0, 0);
     });
@@ -1603,7 +1603,7 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    std::vector<anyprog::equation::funcation_t> eq;
+    std::vector<anyprog::equation::function_t> eq;
     eq.emplace_back([](const anyprog::real_block& x){
         return exp(-exp(x(0)+x(1)))-x(1)*(1+x(0)*x(0));
     });
@@ -1640,7 +1640,7 @@ x(1)=	0.139079
 
 int main(int argc, char** argv)
 {
-    std::vector<anyprog::equation::funcation_t> eq;
+    std::vector<anyprog::equation::function_t> eq;
     eq.emplace_back([](const anyprog::real_block& x) {
         return x(0) - 0.6 * sin(x(0)) - 0.3 * cos(x(1));
     });

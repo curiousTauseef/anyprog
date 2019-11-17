@@ -10,10 +10,10 @@
 namespace anyprog {
 class equation {
 public:
-    typedef std::function<double(const real_block&)> funcation_t;
+    typedef std::function<double(const real_block&)> function_t;
 
 public:
-    equation(const std::vector<equation::funcation_t>&, const real_block&);
+    equation(const std::vector<equation::function_t>&, const real_block&);
     virtual ~equation() = default;
 
 public:

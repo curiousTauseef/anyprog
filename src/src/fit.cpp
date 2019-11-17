@@ -26,7 +26,7 @@ fit::fit(const real_block& x, size_t m)
         return sum;
     };
 }
-fit::fit(const real_block& x, const std::vector<funcation_t>& fun, const real_block& param)
+fit::fit(const real_block& x, const std::vector<function_t>& fun, const real_block& param)
     : solver(optimization::solver_t::NLOPT)
     , dat(x)
     , X(x.rows(), fun.size())
@@ -49,17 +49,17 @@ fit::fit(const real_block& x, const std::vector<funcation_t>& fun, const real_bl
         return sum;
     };
 }
-fit& fit::set_equation_condition(const std::vector<optimization::equation_condition_funcation_t>& eq_cond)
+fit& fit::set_equation_condition(const std::vector<optimization::equation_condition_function_t>& eq_cond)
 {
     this->eq_fun = eq_cond;
     return *this;
 }
-fit& fit::set_inequation_condition(const std::vector<optimization::inequation_condition_funcation_t>& ineq_cond)
+fit& fit::set_inequation_condition(const std::vector<optimization::inequation_condition_function_t>& ineq_cond)
 {
     this->ineq_fun = ineq_cond;
     return *this;
 }
-fit& fit::set_filter_function(const fit::filter_funcation_t& cb)
+fit& fit::set_filter_function(const fit::filter_function_t& cb)
 {
     this->filter_cb = cb;
     return *this;
@@ -97,7 +97,7 @@ fit& fit::set_solver(optimization::solver_t s)
 
 const real_block& fit::lssolve(const real_block& y, optimization::method m, double eps, size_t max_iter)
 {
-    optimization::funcation_t obj_fun = [&](const real_block& ret) {
+    optimization::function_t obj_fun = [&](const real_block& ret) {
         real_block Y(this->dat.rows(), 1);
         for (size_t i = 0; i < Y.rows(); ++i) {
             Y(i, 0) = this->cb(this->dat.row(i), ret);
@@ -125,7 +125,7 @@ const real_block& fit::lssolve(const real_block& y, optimization::method m, doub
 }
 const real_block& fit::lssolve(const real_block& y, const std::vector<optimization::range_t>& range, optimization::method m, double eps, size_t max_iter)
 {
-    optimization::funcation_t obj_fun = [&](const real_block& ret) {
+    optimization::function_t obj_fun = [&](const real_block& ret) {
         real_block Y(this->dat.rows(), 1);
         for (size_t i = 0; i < Y.rows(); ++i) {
             Y(i, 0) = this->cb(this->dat.row(i), ret);
@@ -154,7 +154,7 @@ const real_block& fit::lssolve(const real_block& y, const std::vector<optimizati
 
 const real_block& fit::lssearch(const real_block& y, const std::vector<optimization::range_t>& range, size_t max_random_iter, size_t max_not_changed, double s, optimization::method m, double eps, size_t max_iter)
 {
-    optimization::funcation_t obj_fun = [&](const real_block& ret) {
+    optimization::function_t obj_fun = [&](const real_block& ret) {
         real_block Y(this->dat.rows(), 1);
         for (size_t i = 0; i < Y.rows(); ++i) {
             Y(i, 0) = this->cb(this->dat.row(i), ret);

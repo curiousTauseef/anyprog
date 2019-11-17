@@ -1,7 +1,7 @@
 #include "equation.hpp"
 
 namespace anyprog {
-equation::equation(const std::vector<equation::funcation_t>& eq, const real_block& p)
+equation::equation(const std::vector<equation::function_t>& eq, const real_block& p)
     : ok(false)
     , opt()
 {
