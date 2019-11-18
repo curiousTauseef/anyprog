@@ -16,23 +16,26 @@ A C++ scientific library for mathematical programming,data fitting and solving n
       - [example-3](#example-3-1)
       - [example-4](#example-4)
     - [linear-optimization](#linear-optimization)
-    - [quadratic-optimazition](#quadratic-optimazition)
-    - [mixed-integer-optimazition](#mixed-integer-optimazition)
       - [example-1](#example-1-2)
       - [example-2](#example-2-2)
-      - [example-3](#example-3-2)
-    - [any-optimazition](#any-optimazition)
+    - [quadratic-optimazition](#quadratic-optimazition)
+    - [mixed-integer-optimazition](#mixed-integer-optimazition)
       - [example-1](#example-1-3)
       - [example-2](#example-2-3)
-      - [example-3](#example-3-3)
+      - [example-3](#example-3-2)
       - [example-4](#example-4-1)
+    - [any-optimazition](#any-optimazition)
+      - [example-1](#example-1-4)
+      - [example-2](#example-2-4)
+      - [example-3](#example-3-3)
+      - [example-4](#example-4-2)
       - [example-5](#example-5)
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
   - [solving nonlinear equations](#solving-nonlinear-equations)
-    - [example-1](#example-1-4)
-    - [example-2](#example-2-4)
+    - [example-1](#example-1-5)
+    - [example-2](#example-2-5)
 
 
 # usage
@@ -455,6 +458,7 @@ object:	17.014
 ```
 
 ### linear-optimization
+#### example-1
 ```cpp
 #include <anyprog/anyprog.hpp>
 #include <chrono>
@@ -491,6 +495,40 @@ x(0)=	3.9968e-15
 x(1)=	15
 x(2)=	3
 object=	-78
+```
+#### example-2
+![anyprog-lp-example](doc/anyprog-example.png)
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+
+    anyprog::real_block obj(2, 1), A(3, 2), b(3, 1);
+    obj << -10, -6;
+    A << 1, 1, -1, -2, 3, 1;
+    b << 200, -10, 275.5;
+    std::vector<anyprog::optimization::range_t> range = { { 0, 200 }, { 0, 200 } };
+    anyprog::optimization opt(obj, range);
+    opt.set_inequation_condition(A, b);
+    auto ret = opt.search();
+    if (opt.is_ok()) {
+        std::cout << ret << "\n"
+                  << obj.transpose() * ret << "\n";
+    } else {
+        std::cout << "Not Found\n";
+    }
+    return 0;
+}
+```
+```txt
+ 37.75
+162.25
+-1351
+
 ```
 
 ### quadratic-optimazition
@@ -782,7 +820,41 @@ x(2)=	3
 x(3)=	0
 object=	-13
 ```
+#### example-4
+![anyprog-mip](doc/anyprog-example.png)
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
 
+int main(int argc, char** argv)
+{
+
+    anyprog::real_block obj(2, 1), A(3, 2), b(3, 1);
+    obj << -10, -6;
+    A << 1, 1, -1, -2, 3, 1;
+    b << 200, -10, 275.5;
+    std::vector<anyprog::optimization::range_t> range = { { 0, 200 }, { 0, 200 } };
+    anyprog::optimization opt(obj, range);
+    opt.set_inequation_condition(A, b);
+    opt.set_enable_integer_filter();
+    auto ret = opt.search();
+    if (opt.is_ok()) {
+        std::cout << ret << "\n"
+                  << obj.transpose() * ret << "\n";
+    } else {
+        std::cout << "Not Found\n";
+    }
+    return 0;
+}
+```
+```txt
+ 37
+163
+-1348
+
+```
 
 ### any-optimazition
 #### example-1
