@@ -340,6 +340,7 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
         std::vector<std::shared_ptr<random>> rng;
         random rg(0.0 - eps, fabs(s) + eps);
         std::vector<range_t> range_bk = this->range;
+        bool gcheck = this->check(global_point, eps), lcheck = false;
     reloop:
         for (size_t i = 0; i < dim; ++i) {
             rng.emplace_back(std::make_shared<random>(this->range[i].first - eps, this->range[i].second + eps));
@@ -351,12 +352,13 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
             }
             this->point = this->solve(m, eps, max_iter);
             obj_value = this->fval;
-            bool gcheck = this->check(global_point, eps), lcheck = this->ok;
+            lcheck = this->ok;
             bool case1 = !gcheck && lcheck, case2 = lcheck && (global_obj_value - obj_value) >= eps;
             if ((case1 || case2)) {
                 global_point = this->point;
                 global_obj_value = obj_value;
                 not_changed = 0;
+                gcheck = lcheck;
                 this->history.push_back({ global_obj_value, global_point });
             } else if (++not_changed > max_not_changed) {
                 not_changed = 0;
