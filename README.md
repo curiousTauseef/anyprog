@@ -15,6 +15,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
       - [example-2](#example-2-1)
       - [example-3](#example-3-1)
       - [example-4](#example-4)
+      - [example-5](#example-5)
     - [linear-optimization](#linear-optimization)
       - [example-1](#example-1-2)
       - [example-2](#example-2-2)
@@ -24,12 +25,13 @@ A C++ scientific library for mathematical programming,data fitting and solving n
       - [example-2](#example-2-3)
       - [example-3](#example-3-2)
       - [example-4](#example-4-1)
+      - [example-5](#example-5-1)
     - [any-optimazition](#any-optimazition)
       - [example-1](#example-1-4)
       - [example-2](#example-2-4)
       - [example-3](#example-3-3)
       - [example-4](#example-4-2)
-      - [example-5](#example-5)
+      - [example-5](#example-5-2)
   - [data fitting](#data-fitting)
     - [polynomial-fitting](#polynomial-fitting)
     - [nonlinear-fitting](#nonlinear-fitting)
@@ -456,6 +458,52 @@ x(2)=	3.82112
 x(3)=	1.37941
 object:	17.014
 ```
+#### example-5
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    //https://minlp.com/downloads/examples/nlp2.bar
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
+        return x(2);
+    };
+    std::vector<anyprog::optimization::equation_condition_function_t> eq = {
+        [](const anyprog::real_block& x) {
+            return 250 + 30 * x(0) - 6 * x(0) * x(0) - x(2);
+        },
+        [](const anyprog::real_block& x) {
+            return 300 + 20 * x(1) - 12 * x(1) * x(1) - x(2);
+        },
+        [](const anyprog::real_block& x) {
+            return 150 + 0.5 * (x(0) + x(1)) * (x(0) + x(1)) - x(2);
+        }
+
+    };
+    std::vector<anyprog::optimization::range_t> range = { { 0, 9.422 }, { 0, 5.9023 }, { 0, 267.417085245 } };
+    anyprog::optimization opt(obj, range);
+    opt.set_equation_condition(eq);
+    auto ret = opt.search();
+    if (opt.is_ok()) {
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+        std::cout << "object=\t" << obj(ret) << "\n\n";
+    }
+
+    return 0;
+}
+```
+```txt
+x(0)=	6.29343
+x(1)=	3.82184
+x(2)=	201.159
+object=	201.159
+
+```
 
 ### linear-optimization
 #### example-1
@@ -851,6 +899,78 @@ int main(int argc, char** argv)
  37
 163
 -1348
+
+```
+#### example-5
+```cpp
+#include <anyprog/anyprog.hpp>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    //https://minlp.com/downloads/examples/minlp.bar
+    anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
+        double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+        return 5 * y1 + 6 * y2 + 8 * y3 + 10 * x1 - 7 * x3 - 18 * log(x2 + 1)
+            - 19.2 * log(x1 - x2 + 1) + 10;
+    };
+    std::vector<anyprog::optimization::inequation_condition_function_t> ineq = {
+        [](const anyprog::real_block& x) {
+            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            return -(0.8 * log(x2 + 1) + 0.96 * log(x1 - x2 + 1) - 0.8 * x3);
+        },
+        [](const anyprog::real_block& x) {
+            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            return -2 - (log(x2 + 1) + 1.2 * log(x1 - x2 + 1) - x3 - 2 * y3);
+        },
+        [](const anyprog::real_block& x) {
+            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            return x2 - x1;
+        },
+        [](const anyprog::real_block& x) {
+            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            return x2 - 2 * y1;
+        },
+        [](const anyprog::real_block& x) {
+            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            return x1 - x2 - 2 * y2;
+        },
+        [](const anyprog::real_block& x) {
+            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            return y1 + y2 - 1;
+        }
+    };
+    std::vector<anyprog::optimization::range_t> range = {
+        { 0, 2 }, { 0, 2 }, { 0, 1 }, { 0, 1 }, { 0, 1 }, { 0, 1 }
+    };
+    anyprog::optimization opt(obj, range);
+    opt.set_inequation_condition(ineq);
+    opt.set_filter_function([](anyprog::real_block& x) {
+        x(3) = round(x(3));
+        x(4) = round(x(4));
+        x(5) = round(x(5));
+    });
+    auto ret = opt.search();
+    if (opt.is_ok()) {
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+        std::cout << "object=\t" << obj(ret) << "\n\n";
+    }
+
+    return 0;
+}
+```
+```txt
+x(0)=	1.30096
+x(1)=	0
+x(2)=	1
+x(3)=	0
+x(4)=	1
+x(5)=	0
+object=	6.00973
 
 ```
 
