@@ -918,27 +918,27 @@ int main(int argc, char** argv)
     };
     std::vector<anyprog::optimization::inequation_condition_function_t> ineq = {
         [](const anyprog::real_block& x) {
-            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            double x1 = x(0), x2 = x(1), x3 = x(2);
             return -(0.8 * log(x2 + 1) + 0.96 * log(x1 - x2 + 1) - 0.8 * x3);
         },
         [](const anyprog::real_block& x) {
-            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            double x1 = x(0), x2 = x(1), x3 = x(2), y3 = x(5);
             return -2 - (log(x2 + 1) + 1.2 * log(x1 - x2 + 1) - x3 - 2 * y3);
         },
         [](const anyprog::real_block& x) {
-            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            double x1 = x(0), x2 = x(1);
             return x2 - x1;
         },
         [](const anyprog::real_block& x) {
-            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            double x2 = x(1), y1 = x(3);
             return x2 - 2 * y1;
         },
         [](const anyprog::real_block& x) {
-            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            double x1 = x(0), x2 = x(1), y2 = x(4);
             return x1 - x2 - 2 * y2;
         },
         [](const anyprog::real_block& x) {
-            double x1 = x(0), x2 = x(1), x3 = x(2), y1 = x(3), y2 = x(4), y3 = x(5);
+            double y1 = x(3), y2 = x(4);
             return y1 + y2 - 1;
         }
     };
