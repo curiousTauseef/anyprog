@@ -1,6 +1,13 @@
 # anyprog
 A C++ scientific library for mathematical programming,data fitting and solving nonlinear equations
-
+```txt
+                             min      f(x)
+                           x in R^n
+                           
+                           s.t.       g(x) <= 0
+                                      h(x)  = 0
+                                lb <=   x  <= ub
+```
 # feature
 - [anyprog](#anyprog)
 - [feature](#feature)
