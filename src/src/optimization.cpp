@@ -7,10 +7,8 @@
 namespace anyprog {
 
 optimization::method optimization::default_local_method = optimization::method::LN_COBYLA;
-bool optimization::enable_auto_eq_objector = false;
-bool optimization::enable_auto_ineq_objector = false;
-bool optimization::enable_default_bound_step = false;
-double optimization::default_bound_step = 10;
+bool optimization::enable_default_bound_step = true;
+double optimization::default_bound_step = 50;
 size_t optimization::default_population = 200;
 size_t optimization::max_reloop_iter = 3;
 
@@ -375,7 +373,7 @@ const real_block& optimization::search(size_t max_random_iter, size_t max_not_ch
             double c = p.second - p.first;
             if (c >= eps) {
                 double best = this->point(i, 0);
-                if (best > c / 2.0) {
+                if (best > 0.5 * c) {
                     p.first += (best - p.first) * rg.generate();
                 } else {
                     p.second -= (p.second - best) * rg.generate();
@@ -511,19 +509,7 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     obj.filter = &this->filter_cb;
     obj.grad = &this->grad_cb;
     function_t auto_obj = [&](const real_block& x) {
-        double sum = 0.0;
-        if (optimization::enable_auto_eq_objector) {
-            for (auto& i : this->eq_fun) {
-                sum += pow(i(x), 2);
-            }
-        }
-        if (optimization::enable_auto_ineq_objector) {
-            for (auto& i : this->ineq_fun) {
-                sum += pow(std::max(0.0, i(x)), 2);
-            }
-        }
-
-        return this->cb(x) + sum / eps;
+        return this->cb(x);
     };
     obj.fun = &auto_obj;
     nlopt_set_min_objective(opt, optimization::instance_fun, &obj);

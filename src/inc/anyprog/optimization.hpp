@@ -122,7 +122,7 @@ private:
 
 public:
     static optimization::method default_local_method;
-    static bool enable_auto_eq_objector, enable_auto_ineq_objector, enable_default_bound_step;
+    static bool enable_default_bound_step;
     static double default_bound_step;
     static size_t default_population;
     static size_t max_reloop_iter;
