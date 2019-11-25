@@ -218,6 +218,34 @@ optimization::optimization(const real_block& v, const std::vector<range_t>& rang
         this->point(i, 0) = this->range[i].first + (this->range[i].second - this->range[i].first) * rng.generate();
     }
 }
+
+optimization::optimization(const real_block& v, const optimization::range_t& rge)
+    : solver(optimization::solver_t::NLOPT)
+    , fval(0)
+    , ok(false)
+    , point(v.rows(), 1)
+    , cb()
+    , filter_cb()
+    , grad_cb()
+    , eq_fun()
+    , ineq_fun()
+    , range()
+    , history()
+{
+    this->cb = [&](const real_block& x) {
+        size_t m = x.rows();
+        double sum = 0.0;
+        for (size_t i = 0; i < m; ++i) {
+            sum += v(i, 0) * x(i, 0);
+        }
+        return sum;
+    };
+    random rng(0, 1);
+    for (size_t i = 0; i < this->point.rows(); ++i) {
+        this->range.push_back(rge);
+        this->point(i, 0) = rge.first + (rge.second - rge.first) * rng.generate();
+    }
+}
 optimization::optimization(const real_block& v, const real_block& p, const std::vector<range_t>& range)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)

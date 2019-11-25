@@ -90,6 +90,7 @@ public:
     optimization(const function_t&, const real_block&, const std::vector<range_t>& range);
     optimization(const real_block&, const real_block&);
     optimization(const real_block&, const std::vector<range_t>& range);
+    optimization(const real_block&, const range_t& range);
     optimization(const real_block&, const real_block&, const std::vector<range_t>& range);
     virtual ~optimization() = default;
 
