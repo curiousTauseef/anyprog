@@ -144,6 +144,26 @@ optimization::optimization(const function_t& fun, const std::vector<optimization
     }
 }
 
+optimization::optimization(const function_t& fun, const optimization::range_t& rge, size_t dim)
+    : solver(optimization::solver_t::NLOPT)
+    , fval(0)
+    , ok(false)
+    , point(dim, 1)
+    , cb(fun)
+    , filter_cb()
+    , grad_cb()
+    , eq_fun()
+    , ineq_fun()
+    , range()
+    , history()
+{
+    random rng(0, 1);
+    for (size_t i = 0; i < this->point.rows(); ++i) {
+        this->range.push_back(rge);
+        this->point(i, 0) = rge.first + (rge.second - rge.first) * rng.generate();
+    }
+}
+
 optimization::optimization(const real_block& v, const real_block& p)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)

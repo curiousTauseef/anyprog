@@ -752,7 +752,6 @@ int main(int argc, char** argv)
 
     anyprog::real_block param(7, 1);
     param << 1, 1, 1, 1, 1, 1, 1;
-    anyprog::optimization::enable_default_bound_step = true;
     anyprog::optimization opt(obj, param);
     opt.set_inequation_condition(ineq);
     opt.set_filter_function([](anyprog::real_block& x) {

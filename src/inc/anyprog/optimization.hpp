@@ -86,6 +86,7 @@ public:
     optimization() = delete;
     optimization(const function_t&, const real_block&);
     optimization(const function_t&, const std::vector<range_t>& range);
+    optimization(const function_t&, const range_t& range, size_t dim);
     optimization(const function_t&, const real_block&, const std::vector<range_t>& range);
     optimization(const real_block&, const real_block&);
     optimization(const real_block&, const std::vector<range_t>& range);
@@ -158,8 +159,8 @@ public:
         void find(size_t i);
 
     public:
-        typedef std::pair<double,double> point2d_t;
-        typedef std::function<double(const point2d_t&,const point2d_t)> point2d_distance_function_t;
+        typedef std::pair<double, double> point2d_t;
+        typedef std::function<double(const point2d_t&, const point2d_t)> point2d_distance_function_t;
         tsp() = delete;
         tsp(const real_block&, size_t = 0, double inf = 1e10);
         virtual ~tsp() = default;
@@ -167,8 +168,7 @@ public:
         double obj() const;
 
     public:
-        static real_block distance(const std::vector<point2d_t>&
-        ,const point2d_distance_function_t&,double inf = 1e10);
+        static real_block distance(const std::vector<point2d_t>&, const point2d_distance_function_t&, double inf = 1e10);
     };
 };
 }
