@@ -591,6 +591,12 @@ const optimization::history_t& optimization::get_history() const
 
 optimization& optimization::set_enable_integer_filter()
 {
+    double c = 0.4999;
+    for (auto& i : this->range) {
+        i.first -= c;
+        i.second += c;
+    }
+
     this->filter_cb = [&](real_block& x) {
         size_t m = x.rows();
         for (size_t i = 0; i < m; ++i) {
@@ -601,14 +607,15 @@ optimization& optimization::set_enable_integer_filter()
 }
 optimization& optimization::set_enable_binary_filter()
 {
+    double c = 0.4999;
     if (this->range.empty()) {
         for (size_t i = 0; i < this->point.rows(); ++i) {
-            this->range.push_back({ 0, 1 });
+            this->range.push_back({ 0.0 - c, 1.0 + c });
         }
     } else {
         for (auto& i : this->range) {
-            i.first = 0;
-            i.second = 1;
+            i.first -= c;
+            i.second += c;
         }
     }
 
