@@ -51,7 +51,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
 `pkg-config --libs --cflags anyprog`
 
 ## mathematical programming
-
+`anyprog` is a C++ implementation of LINGO.
 ### nonlinear-unconstrained-optimization
 #### example-1
 ```cpp
