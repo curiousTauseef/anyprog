@@ -87,6 +87,34 @@ real_block optimization::fminbnd(const optimization::function_t& obj, const std:
     return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
 }
 
+void optimization::print(bool ok, const real_block& ret, const optimization::function_t& obj)
+{
+    if (ok) {
+        std::cout << "object=\t" << obj(ret) << "\n";
+        std::cout << "solution:\n";
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+
+    } else {
+        std::cout << "Not Found.\n";
+    }
+}
+
+void optimization::print(bool ok, const real_block& ret, const real_block& obj)
+{
+    if (ok) {
+        std::cout << "object=\t" << obj.transpose() * ret << "\n";
+        std::cout << "solution:\n";
+        for (size_t i = 0; i < ret.rows(); ++i) {
+            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
+        }
+
+    } else {
+        std::cout << "Not Found.\n";
+    }
+}
+
 optimization::optimization(const function_t& fun, const real_block& p)
     : solver(optimization::solver_t::NLOPT)
     , fval(0)

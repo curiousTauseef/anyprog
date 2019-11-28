@@ -134,6 +134,9 @@ public:
     static real_block fminunc(const optimization::function_t&, const optimization::gradient_function_t&, const real_block&, double = 1e-5, size_t = 1000);
     static real_block fminbnd(const optimization::function_t&, const std::vector<range_t>&, double = 1e-5, size_t = 1000);
 
+    static void print(bool ok, const real_block& ret, const optimization::function_t& obj);
+    static void print(bool ok, const real_block& ret, const real_block& obj);
+
     class assignment {
     private:
         const real_block& bk;
