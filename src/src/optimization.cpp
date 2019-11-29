@@ -87,6 +87,12 @@ real_block optimization::fminbnd(const optimization::function_t& obj, const std:
     return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
 }
 
+real_block optimization::fminbnd(const optimization::function_t& obj, const range_t& range, size_t dim, double eps, size_t max_iter)
+{
+    optimization opt(obj, range, dim);
+    return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
+}
+
 void optimization::print(bool ok, const real_block& ret, const optimization::function_t& obj)
 {
     if (ok) {
