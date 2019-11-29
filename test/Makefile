@@ -1,6 +1,7 @@
 CON_CPPSRC=$(shell find constrained -type f -name *.cpp)
 UNCON_CPPSRC=$(shell find unconstrained -type f -name *.cpp)
-CPPSRC=$(CON_CPPSRC) $(UNCON_CPPSRC)
+LP_CPPSRC=$(shell find lp -type f -name *.cpp)
+CPPSRC=$(CON_CPPSRC) $(UNCON_CPPSRC) $(LP_CPPSRC)
 CPPOBJ=$(patsubst %.cpp,%.o,$(CPPSRC))
 APP=$(basename $(CPPSRC))
 

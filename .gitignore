@@ -33,8 +33,6 @@
 
 .vscode/
 
-test/unconstrained/test*
-!test/unconstrained/test*.cpp
 
-test/constrained/test*
-!test/constrained/test*.cpp
+test/*/test*
+!test/*/test*.cpp
