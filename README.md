@@ -11,6 +11,7 @@ A C++ scientific library for mathematical programming,data fitting and solving n
 # feature
 - [anyprog](#anyprog)
 - [feature](#feature)
+- [document](#document)
 - [usage](#usage)
   - [mathematical programming](#mathematical-programming)
     - [nonlinear-unconstrained-optimization](#nonlinear-unconstrained-optimization)
@@ -46,7 +47,8 @@ A C++ scientific library for mathematical programming,data fitting and solving n
     - [example-1](#example-1-5)
     - [example-2](#example-2-5)
 
-
+# document
+[document.pdf](doc/document.pdf)
 # usage
 `pkg-config --libs --cflags anyprog`
 
