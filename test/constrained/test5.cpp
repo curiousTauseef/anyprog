@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 
     anyprog::optimization opt(obj, range, dim);
     opt.set_inequation_condition(ineq);
-    auto ret = opt.search();
+    auto ret = opt.search(10, 3);
     anyprog::print(opt.is_ok(), ret, obj);
 
     return 0;

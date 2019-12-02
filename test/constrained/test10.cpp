@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 
     anyprog::optimization opt(obj, range);
     opt.set_equation_condition(eq);
-    auto ret = opt.search();
+    auto ret = opt.search(10, 5);
     anyprog::print(opt.is_ok(), ret, obj);
 
     return 0;

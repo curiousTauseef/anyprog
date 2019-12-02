@@ -1,7 +1,7 @@
 #include "../help.hpp"
 
 //http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO_files/Page1882.htm
-//The global minima: 18 global minima  f(x*) = -186.7309.
+//The global minima: f(x*) = -186.7309.
 
 int main(int argc, char** argv)
 {
@@ -17,7 +17,7 @@ int main(int argc, char** argv)
     anyprog::optimization::range_t range = { -10, 10 };
     size_t dim = 2;
     anyprog::optimization opt(obj, range, dim);
-    auto ret = opt.search();
+    auto ret = opt.search(10, 8);
     anyprog::print(opt.is_ok(), ret, obj);
 
     return 0;

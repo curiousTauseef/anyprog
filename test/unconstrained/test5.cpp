@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     std::vector<anyprog::optimization::range_t> range = { { -5, 10 }, { 0, 15 } };
 
     anyprog::optimization opt(obj, range);
-    auto ret = opt.search();
+    auto ret = opt.search(10 ,3);
     anyprog::print(opt.is_ok(), ret, obj);
 
     return 0;

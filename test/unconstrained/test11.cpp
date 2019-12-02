@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     anyprog::optimization::range_t range = { -5.12, 5.12 };
     size_t dim = 2;
     anyprog::optimization opt(obj, range, dim);
-    auto ret = opt.search();
+    auto ret = opt.search(20,8);
     anyprog::print(opt.is_ok(), ret, obj);
 
     return 0;

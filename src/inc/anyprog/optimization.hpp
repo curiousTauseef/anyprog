@@ -111,7 +111,7 @@ public:
 
 public:
     const real_block& solve(optimization::method = optimization::method::LN_COBYLA, double = 1e-5, size_t = 1000);
-    const real_block& search(size_t = 100, size_t = 30, double = 0.328, optimization::method = optimization::method::LN_COBYLA, double = 1e-5, size_t = 1000);
+    const real_block& search(size_t = 100, size_t = 30, double = 0.382, optimization::method = optimization::method::LN_COBYLA, double = 1e-5, size_t = 1000);
     double obj(const real_block&) const;
 
 private:

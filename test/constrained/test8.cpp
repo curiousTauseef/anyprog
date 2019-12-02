@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 
     anyprog::optimization opt(obj, range);
     opt.set_inequation_condition(ineq);
-    auto ret = opt.search();
+    auto ret = opt.search(30, 10);
     anyprog::print(opt.is_ok(), ret, obj);
 
     return 0;
