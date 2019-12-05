@@ -605,7 +605,6 @@ const real_block& optimization::nlopt_solve(optimization::method m, double eps, 
     nlopt_set_min_objective(opt, optimization::instance_fun, &obj);
     nlopt_set_xtol_rel(opt, eps);
     nlopt_set_ftol_abs(opt, eps);
-    nlopt_set_force_stop(opt, eps);
     nlopt_set_maxeval(opt, max_iter);
     nlopt_set_population(opt, optimization::default_population);
     double lb[dim], ub[dim];
