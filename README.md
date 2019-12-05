@@ -64,25 +64,23 @@ A C++ scientific library for mathematical programming,data fitting and solving n
 
 int main(int argc, char** argv)
 {
-    auto output = [](const anyprog::real_block& ret, const anyprog::optimization::function_t& obj) {
-        std::cout << "solution:\n";
-        for (size_t i = 0; i < ret.rows(); ++i) {
-            std::cout << "x(" << i << ")=\t" << ret(i, 0) << "\n";
-        }
-        std::cout << "object=\t" << obj(ret) << "\n\n";
-    };
-
     anyprog::optimization::function_t obj = [](const anyprog::real_block& x) {
         return 100 * pow(x(1, 0) - pow(x(0, 0), 2), 2) + pow(1 - x(0, 0), 2);
     };
 
     std::vector<anyprog::optimization::range_t> range = { { -10, 10 }, { -10, 10 } };
-    output(anyprog::optimization::fminbnd(obj, range, 1e-10), obj);
+
+    bool ok = false;
+    auto ret = anyprog::optimization::fminbnd(obj, range, ok, 1e-10);
+
+    anyprog::optimization::print(ok, ret, obj);
 
     anyprog::real_block param(2, 1);
     param(0, 0) = 0;
     param(1, 0) = 0;
-    output(anyprog::optimization::fminunc(obj, param, 1e-10), obj);
+
+    ret = anyprog::optimization::fminunc(obj, param, ok, 1e-10);
+    anyprog::optimization::print(ok, ret, obj);
 
     auto grad = [&](const anyprog::real_block& x) {
         anyprog::real_block ret(x.rows(), 1);
@@ -90,27 +88,25 @@ int main(int argc, char** argv)
         ret(1, 0) = 200 * x(1) - 200 * pow(x(0), 2);
         return ret;
     };
-    output(anyprog::optimization::fminunc(obj, grad, param), obj);
-
+    ret = anyprog::optimization::fminunc(obj, grad, param, ok);
+    anyprog::optimization::print(ok, ret, obj);
     return 0;
 }
 
 ```
 ```txt
+object=	4.2874e-11
 solution:
-x(0)=	0.999986
-x(1)=	0.999971
-object=	2.16042e-10
-
-solution:
-x(0)=	1
-x(1)=	1
-object=	3.05615e-14
-
+x(0)=	0.999994
+x(1)=	0.999988
+object=	2.71429e-13
 solution:
 x(0)=	1
 x(1)=	1
 object=	3.56293e-17
+solution:
+x(0)=	1
+x(1)=	1
 
 ```
 
