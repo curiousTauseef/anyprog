@@ -70,27 +70,35 @@ double optimization::instance_ineq_fun(unsigned n, const double* x, double* grad
     return (*help->fun)(ret);
 }
 
-real_block optimization::fminunc(const optimization::function_t& obj, const real_block& p, double eps, size_t max_iter)
+real_block optimization::fminunc(const optimization::function_t& obj, const real_block& p, bool& ok, double eps, size_t max_iter)
 {
     optimization opt(obj, p);
-    return opt.solve(optimization::method::LN_NEWUOA, eps, max_iter);
+    auto ret = opt.solve(optimization::method::LN_NEWUOA, eps, max_iter);
+    ok = opt.is_ok();
+    return ret;
 }
-real_block optimization::fminunc(const optimization::function_t& obj, const optimization::gradient_function_t& grad, const real_block& p, double eps, size_t max_iter)
+real_block optimization::fminunc(const optimization::function_t& obj, const optimization::gradient_function_t& grad, const real_block& p, bool& ok, double eps, size_t max_iter)
 {
     optimization opt(obj, p);
     opt.set_gradient_function(grad);
-    return opt.solve(optimization::method::LD_LBFGS, eps, max_iter);
+    auto ret = opt.solve(optimization::method::LD_LBFGS, eps, max_iter);
+    ok = opt.is_ok();
+    return ret;
 }
-real_block optimization::fminbnd(const optimization::function_t& obj, const std::vector<range_t>& range, double eps, size_t max_iter)
+real_block optimization::fminbnd(const optimization::function_t& obj, const std::vector<range_t>& range, bool& ok, double eps, size_t max_iter)
 {
     optimization opt(obj, range);
-    return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
+    auto ret = opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
+    ok = opt.is_ok();
+    return ret;
 }
 
-real_block optimization::fminbnd(const optimization::function_t& obj, const range_t& range, size_t dim, double eps, size_t max_iter)
+real_block optimization::fminbnd(const optimization::function_t& obj, const range_t& range, size_t dim, bool& ok, double eps, size_t max_iter)
 {
     optimization opt(obj, range, dim);
-    return opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
+    auto ret = opt.solve(optimization::method::LN_NEWUOA_BOUND, eps, max_iter);
+    ok = opt.is_ok();
+    return ret;
 }
 
 void optimization::print(bool ok, const real_block& ret, const optimization::function_t& obj)
