@@ -105,6 +105,8 @@ public:
     optimization& set_inequation_gradient_function(const std::vector<gradient_function_t>&);
     optimization& set_enable_integer_filter();
     optimization& set_enable_binary_filter();
+    optimization& set_enable_integer_filter(const std::vector<size_t>&);
+    optimization& set_enable_binary_filter(const std::vector<size_t>&);
     optimization& set_solver(optimization::solver_t);
     const history_t& get_history() const;
     bool is_ok() const;

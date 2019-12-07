@@ -717,6 +717,44 @@ optimization& optimization::set_enable_binary_filter()
     return *this;
 }
 
+optimization& optimization::set_enable_integer_filter(const std::vector<size_t>& v)
+{
+    double c = 0.4999;
+    for (auto& i : this->range) {
+        i.first -= c;
+        i.second += c;
+    }
+
+    this->filter_cb = [&](real_block& x) {
+        for (const auto& i : v) {
+            x(i, 0) = round(x(i, 0));
+        }
+    };
+    return *this;
+}
+
+optimization& optimization::set_enable_binary_filter(const std::vector<size_t>& v)
+{
+    double c = 0.4999;
+    if (this->range.empty()) {
+        for (size_t i = 0; i < this->point.rows(); ++i) {
+            this->range.push_back({ 0.0 - c, 1.0 + c });
+        }
+    } else {
+        for (auto& i : this->range) {
+            i.first -= c;
+            i.second += c;
+        }
+    }
+
+    this->filter_cb = [&](real_block& x) {
+        for (const auto& i : v) {
+            x(i, 0) = round(x(i, 0));
+        }
+    };
+    return *this;
+}
+
 optimization::assignment::assignment(const anyprog::real_block& c, double inf)
     : bk(c)
     , data(c)
