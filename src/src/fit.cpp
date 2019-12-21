@@ -180,4 +180,10 @@ const real_block& fit::lssearch(const real_block& y, const std::vector<optimizat
     this->point = opt.search(max_random_iter, max_not_changed, s, m, eps, max_iter);
     return this->point;
 }
+
+double fit::r_squared(const real_block& y, const real_block& fitting) const
+{
+    double mean = y.mean();
+    return ((fitting.array() - mean).square().sum()) / ((y.array() - mean).square().sum());
+}
 }

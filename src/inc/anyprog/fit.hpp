@@ -39,6 +39,7 @@ public:
     const real_block& lssolve(const real_block&, optimization::method = optimization::method::LN_COBYLA, double eps = 1e-5, size_t = 1000);
     const real_block& lssolve(const real_block&, const std::vector<optimization::range_t>& range, optimization::method = optimization::method::LN_COBYLA, double eps = 1e-5, size_t = 1000);
     const real_block& lssearch(const real_block&, const std::vector<optimization::range_t>& range, size_t = 100, size_t = 30, double = 0.382, optimization::method = optimization::method::LN_COBYLA, double eps = 1e-5, size_t = 1000);
+    double r_squared(const real_block&,const real_block&) const;
 };
 }
 
