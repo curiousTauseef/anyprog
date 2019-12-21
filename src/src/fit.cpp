@@ -183,7 +183,9 @@ const real_block& fit::lssearch(const real_block& y, const std::vector<optimizat
 
 double fit::r_squared(const real_block& y, const real_block& fitting) const
 {
-    double mean = y.mean();
-    return ((fitting.array() - mean).square().sum()) / ((y.array() - mean).square().sum());
+    double mean = y.mean()
+    , sse = (y-fitting).array().square().sum()
+    , sst = (y.array() - mean).square().sum();
+    return 1 - sse/sst;
 }
 }
