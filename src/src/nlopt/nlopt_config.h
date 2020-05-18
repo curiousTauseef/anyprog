@@ -17,7 +17,7 @@
 #============================================================================*/
 
 /* Bugfix version number. */
-#define BUGFIX_VERSION 1
+#define BUGFIX_VERSION 2
 
 /* Define to enable extra debugging code. */
 #undef DEBUG

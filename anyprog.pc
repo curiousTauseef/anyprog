@@ -8,5 +8,6 @@ Description: A C++ scientific library for mathematical programming,data fitting 
 Version: 0.2.6
 URL: https://github.com/webcpp/anyprog
 Requires:
-Libs: -L${libdir} -lanyprog -lm
+Libs: -L${libdir} -lanyprog
+Libs.private: -lm
 Cflags: -I${includedir} -I${includedir}/anyprog
